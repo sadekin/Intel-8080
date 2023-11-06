@@ -98,8 +98,8 @@ void Intel8080::Emulate8080() {
             printf("DCR    E");
             break;
         case 0x1e:  // E <- byte 2
-            printf("MVI    E,#$%02x", buffer[pc + 1]);
-            opcodeBytes = 2;
+//            printf("MVI    E,#$%02x", buffer[pc + 1]);
+//            opcodeBytes = 2;
             break;
         case 0x1f:  // A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0
             printf("RAR");
@@ -108,12 +108,12 @@ void Intel8080::Emulate8080() {
             printf("RIM");
             break;
         case 0x21:  // H <- byte 3, L <- byte 2
-            printf("LXI    H,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-            opcodeBytes = 3;
+//            printf("LXI    H,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
+//            opcodeBytes = 3;
             break;
         case 0x22:  // (adr) <- L; (adr+1) <- H
-            printf("SHLD    0x%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-            opcodeBytes = 3;
+//            printf("SHLD    0x%02x%02x", buffer[pc + 2], buffer[pc + 1]);
+//            opcodeBytes = 3;
             break;
         case 0x23:  // HL <- HL + 1
             printf("INX    H");
@@ -125,8 +125,8 @@ void Intel8080::Emulate8080() {
             printf("DCR    H");
             break;
         case 0x26:  // L <- byte 2
-            printf("MVI    H,#$%02x", buffer[pc + 1]);
-            opcodeBytes = 2;
+//            printf("MVI    H,#$%02x", buffer[pc + 1]);
+//            opcodeBytes = 2;
             break;
         case 0x27:  // special
             printf("DAA");
@@ -138,8 +138,8 @@ void Intel8080::Emulate8080() {
             printf("DAD    H");
             break;
         case 0x2a:  // L <- (adr); H <- (adr+1)
-            printf("LHLD    0x%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-            opcodeBytes = 3;
+//            printf("LHLD    0x%02x%02x", buffer[pc + 2], buffer[pc + 1]);
+//            opcodeBytes = 3;
             break;
         case 0x2b:  // HL = HL-1
             printf("DCX    H");
@@ -151,8 +151,8 @@ void Intel8080::Emulate8080() {
             printf("DCR    L");
             break;
         case 0x2e:  // L <- byte 2
-            printf("MVI    L,#$%02x", buffer[pc + 1]);
-            opcodeBytes = 2;
+//            printf("MVI    L,#$%02x", buffer[pc + 1]);
+//            opcodeBytes = 2;
             break;
         case 0x2f:  // A <- !A
             printf("CMA");
@@ -161,12 +161,12 @@ void Intel8080::Emulate8080() {
             printf("SIM");
             break;
         case 0x31:  // SP.hi <- byte 3, SP.lo <- byte 2
-            printf("LXI    SP,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-            opcodeBytes = 3;
+//            printf("LXI    SP,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
+//            opcodeBytes = 3;
             break;
         case 0x32:  // (adr) <- A
-            printf("STA    $%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-            opcodeBytes = 3;
+//            printf("STA    $%02x%02x", buffer[pc + 2], buffer[pc + 1]);
+//            opcodeBytes = 3;
             break;
         case 0x33:  // SP = SP + 1
             printf("INX    SP");
@@ -178,8 +178,8 @@ void Intel8080::Emulate8080() {
             printf("DCR    M");
             break;
         case 0x36:  // (HL) <- byte 2
-            printf("MVI    M,#$%02x", buffer[pc + 1]);
-            opcodeBytes = 2;
+//            printf("MVI    M,#$%02x", buffer[pc + 1]);
+//            opcodeBytes = 2;
             break;
         case 0x37:  // CY = 1
             printf("STC");
@@ -191,8 +191,8 @@ void Intel8080::Emulate8080() {
             printf("DAD    SP");
             break;
         case 0x3a:  // A <- (adr)
-            printf("LDA    #$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-            opcodeBytes = 3;
+//            printf("LDA    #$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
+//            opcodeBytes = 3;
             break;
         case 0x3b:  // SP = SP-1
             printf("DCX    SP");
@@ -204,8 +204,8 @@ void Intel8080::Emulate8080() {
             printf("DCR    A");
             break;
         case 0x3e:  // A <- byte 2
-            printf("MVI    A,#$%02x", buffer[pc + 1]);
-            opcodeBytes = 2;
+//            printf("MVI    A,#$%02x", buffer[pc + 1]);
+//            opcodeBytes = 2;
             break;
         case 0x3f:  // CY = !CY
             printf("CMC");
@@ -601,23 +601,23 @@ void Intel8080::Emulate8080() {
             printf("POP    B");
             break;
         case 0xc2:  // if NZ, PC <- adr
-            printf("JNZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JNZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xc3:  // PC <- adr
-            printf("JMP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JMP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xc4:  // if NZ, CALL adr
-            printf("CNZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CNZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xc5:  // (sp-2) <- C; (sp-1) <- B; sp <- sp - 2
             printf("PUSH    B");
             break;
         case 0xc6:  // A <- A + byte
-            printf("ADI    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("ADI    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xc7:  // CALL $0
             printf("RST    0");
@@ -629,23 +629,23 @@ void Intel8080::Emulate8080() {
             printf("RET");
             break;
         case 0xca:  // if Z, PC <- adr
-            printf("JZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xcb:
             printf("NOP");
             break;
         case 0xcc:  // if Z, CALL adr
-            printf("CZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xcd:  // (sp-1) <- PC.hi; (sp-2) <- PC.lo; sp <- sp+2; PC = adr
-            printf("CALL    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CALL    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xce:  // A <- A + data + CY
-            printf("ACI    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("ACI    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xcf:  // CALL $8
             printf("RST    1");
@@ -657,23 +657,23 @@ void Intel8080::Emulate8080() {
             printf("POP    D");
             break;
         case 0xd2:  // if NCY, PC <- adr
-            printf("JNC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JNC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xd3:  // special
-            printf("OUT    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("OUT    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xd4:  // if NCY, CALL adr
-            printf("CNC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CNC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xd5:  // (sp-2) <- E; (sp-1) <- D; sp <- sp - 2
             printf("PUSH    D");
             break;
         case 0xd6:  // A <- A - data
-            printf("SUI    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("SUI    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xd7:  // CALL $10
             printf("RST    2");
@@ -685,23 +685,23 @@ void Intel8080::Emulate8080() {
             printf("NOP");
             break;
         case 0xda:  // if CY, PC <- adr
-            printf("JC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xdb:  // special
-            printf("IN    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("IN    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xdc:  // if CY, CALL adr
-            printf("CC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xdd:
             printf("NOP");
             break;
         case 0xde:  // A <- A - data - CY
-            printf("SBI    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("SBI    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xdf:  // CALL $18
             printf("RST    3");
@@ -713,22 +713,22 @@ void Intel8080::Emulate8080() {
             printf("POP    H");
             break;
         case 0xe2:  // if PO, PC <- adr
-            printf("JPO    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JPO    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xe3:  // L <-> (SP); H <-> (SP+1)
             printf("XTHL");
             break;
         case 0xe4:  // if PO, CALL adr
-            printf("CPO    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CPO    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xe5:  // (sp-2)<-L; (sp-1)<-H; sp <- sp - 2
             printf("PUSH    H");
             break;
         case 0xe6:  // A <- A & data
-            printf("ANI    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("ANI    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xe7:  // CALL $20
             printf("RST    4");
@@ -740,22 +740,22 @@ void Intel8080::Emulate8080() {
             printf("PCHL");
             break;
         case 0xea:  // if PE, PC <- adr
-            printf("JPE    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JPE    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xeb:  // H <-> D; L <-> E
             printf("XCHG");
             break;
         case 0xec:  // if PE, CALL adr
-            printf("CPE    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CPE    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xed:
             printf("NOP");
             break;
         case 0xee:  // A <- A ^ data
-            printf("XRI    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("XRI    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xef:  // CALL $28
             printf("RST    5");
@@ -767,22 +767,22 @@ void Intel8080::Emulate8080() {
             printf("POP    PSW");
             break;
         case 0xf2:  // if P=1, PC <- adr
-            printf("JP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xf3:  // special
             printf("DI");
             break;
         case 0xf4:  // if P, PC <- adr
-            printf("CP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xf5:  // (sp-2)<-flags; (sp-1)<-A; sp <- sp - 2
             printf("PUSH    PSW");
             break;
         case 0xf6:  // A <- A | data
-            printf("ORI    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("ORI    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xf7:  // CALL $30
             printf("RST    6");
@@ -794,22 +794,22 @@ void Intel8080::Emulate8080() {
             printf("SPHL");
             break;
         case 0xfa:  // if M, PC <- adr
-            printf("JM    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("JM    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xfb:  // special
             printf("EI");
             break;
         case 0xfc:  // if M, CALL adr
-            printf("CM    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-            opcodeBytes = 3;
+//            printf("CM    $%02x%02x", buffer[pc+2], buffer[pc+1]);
+//            opcodeBytes = 3;
             break;
         case 0xfd:
             printf("NOP");
             break;
         case 0xfe:  // A - data
-            printf("CPI    #$%02x", buffer[pc+1]);
-            opcodeBytes = 2;
+//            printf("CPI    #$%02x", buffer[pc+1]);
+//            opcodeBytes = 2;
             break;
         case 0xff:  // CALL $38
             printf("RST    7");
