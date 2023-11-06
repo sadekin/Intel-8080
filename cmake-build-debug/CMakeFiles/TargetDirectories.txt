@@ -1,0 +1,3 @@
+/Users/sadekin/CLionProjects/Intel-8080/cmake-build-debug/CMakeFiles/Intel_8080.dir
+/Users/sadekin/CLionProjects/Intel-8080/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/sadekin/CLionProjects/Intel-8080/cmake-build-debug/CMakeFiles/rebuild_cache.dir
