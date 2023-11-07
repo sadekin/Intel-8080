@@ -2,7 +2,6 @@
 
 Intel8080::Intel8080() : a(0), b(0), c(0), d(0), e(0), h(0), l(0), sp(0), pc(0), memory(nullptr), int_enable(0) {}
 
-
 /* Utility functions for setting flags. */
 bool Intel8080::parity(uint8_t value) {
     value ^= value >> 4; // XOR the high 4 bits with the low 4 bits
@@ -24,11 +23,12 @@ void Intel8080::setZSP(uint8_t result) {
 /* Utility function for data transfer. */
 uint16_t getAddr(const uint8_t* opcode) { return (opcode[2] << 8) | opcode[1]; }
 
-/* Opcode Functions ==================================================================================================*/
+/* Opcode Functions */
 
-/* Data Transfer Group:********************************************************************************************BEG*/
-// This group of instructions transfers data to and from registers and memory. Condition flags are not affected by
-// any instruction in this group.
+/* Data Transfer Group:
+ * This group of instructions transfers data to and from registers and memory.
+ * Condition flags are not affected by any instruction in this group.
+ * */
 
 // Move data between register/memory.
 void Intel8080::MOV(uint8_t* dst, uint8_t* src) { *dst = *src; }
@@ -36,7 +36,7 @@ void Intel8080::MOV(uint8_t* dst, uint8_t* src) { *dst = *src; }
 // Move to register/memory immediate.
 void Intel8080::MVI(uint8_t *dst, uint8_t byte) { *dst = byte; }
 
-// LXI, rp, data 16 (Load resister pair immediate): (rh) <- (byte 3), (rl) <- (byte 2).
+// LXI rp, data 16 (Load resister pair immediate): (rh) <- (byte 3), (rl) <- (byte 2).
 // Note: Stored from LSB to MSB since the 8080 is little endian.
 void Intel8080::LXI(uint8_t* rh, uint8_t* rl, const uint8_t* opcode) {
     *rh = opcode[2];    // high-order register
@@ -75,16 +75,16 @@ void Intel8080::XCHG() {
     h = d;      l = e;
     d = tempH;  e = tempL;
 }
-/* Data Transfer Group:********************************************************************************************END*/
 
-/* Arithmetic Group:***********************************************************************************************BEG*/
-// This group of instructions performs arithmetic operations on data in registers and memory.
-// Unless indicated otherwise, all instructions in this group affect the Zero, Sign, Parity, Carry,
-// and Auxiliary Carry flags according to the standard rules.
-// All subtraction operations are performed via two's complement arithmetic and set the carry flag
-// to one to indicate a borrow and clear it to indicate no borrow.
+/* Arithmetic Group:
+ * This group of instructions performs arithmetic operations on data in registers and memory.
+ * Unless indicated otherwise, all instructions in this group affect the Zero, Sign, Parity, Carry,
+ * and Auxiliary Carry flags according to the standard rules.
+ * All subtraction operations are performed via two's complement arithmetic and set the carry flag
+ * to one to indicate a borrow and clear it to indicate no borrow. */
 
-// ADD/ADC/ADI/ACI (Add register/memory/immediate with/without carry to Accumulator); Flags affected ALL.
+// ADD/ADC/ADI/ACI r/M/data (Add register/memory/immediate with/without carry to Accumulator);
+// Flags affected: ALL.
 void Intel8080::ADD(uint8_t addend, bool cy) {
     uint16_t result = a + addend + cy;
     flag.cy = result > 0xFF;
@@ -93,7 +93,8 @@ void Intel8080::ADD(uint8_t addend, bool cy) {
     setZSP(a);
 }
 
-// SUB/SUI/SBB/SBI (Subtract register/memory/immediate with/without borrow from Accumulator); Flags affected: ALL.
+// SUB/SUI/SBB/SBI r/M/data (Subtract register/memory/immediate with/without borrow from Accumulator);
+// Flags affected: ALL.
 void Intel8080::SUB(uint8_t subtrahend, bool cy) {
     uint16_t result = a - subtrahend - cy;
     flag.cy = a < subtrahend + cy;
@@ -102,7 +103,7 @@ void Intel8080::SUB(uint8_t subtrahend, bool cy) {
     setZSP(a);
 }
 
-// INR (Increment register/memory); Flags affected: All except CY.
+// INR r/M (Increment register/memory); Flags affected: All except CY.
 void Intel8080::INR(uint8_t* target) {
     uint16_t result = *target + 1;
     flag.ac = (*target & 0x0F) + 1 > 0x0F;
@@ -110,7 +111,7 @@ void Intel8080::INR(uint8_t* target) {
     setZSP(*target);
 }
 
-// DCR (Decrement register/memory); Flags affected: ALL except CY.
+// DCR r/M (Decrement register/memory); Flags affected: ALL except CY.
 void Intel8080::DCR(uint8_t* target) {
     flag.ac = (*target & 0x0F) == 0;
     uint16_t result = *target - 1;
@@ -118,12 +119,12 @@ void Intel8080::DCR(uint8_t* target) {
     setZSP(*target);
 }
 
-// INX (Increment register pair): INX rp: (rh) (rl) <- (rh) (rl) + 1; Flags affected: NONE
+// INX rp (Increment register pair); Flags affected: NONE
 void Intel8080::INX(uint8_t* rh, uint8_t* rl) {
     if (++(*rl) == 0) (*rh)++; // overflow
 }
 
-// DCX (Decrement register pair): INX rp: (rh) (rl) <- (rh) (rl) - 1; Flags affected: NONE
+// DCX rp (Decrement register pair); Flags affected: NONE
 void Intel8080::DCX(uint8_t* rh, uint8_t* rl) {
     if (--(*rl) == 0xFF) (*rh)--; // underflow
 }
@@ -141,22 +142,20 @@ void Intel8080::DAA() {
     // TODO
 }
 
-// DAD rp (Add register pair to H and L): (H)(L) <- (H)(L) + (rh)(rl); Flags affected: Only CY.
+// DAD rp (Add register pair to H and L); Flags affected: Only CY.
 void Intel8080::DAD(uint16_t rp) {
     uint32_t result = getHL() + rp;
     h = (result >> 8) & 0xFF;
     l = result & 0xFF;
     flag.cy = result > 0xFFFF;
 }
-/* Arithmetic Group:***********************************************************************************************END*/
 
-/* Logical Group:**************************************************************************************************BEG*/
-// This group of instructions performs logical (Boolean) operations on data in registers and memory and on
-// condition flags. Unless indicated otherwise, all instructions in this group affect the Zero, Sign, Parity,
-// Auxiliary Carry, and Carry flags according to the standard rules.
+/* Logical Group:
+ * This group of instructions performs logical (Boolean) operations on data in registers and memory and on
+ * condition flags. Unless indicated otherwise, all instructions in this group affect the Zero, Sign, Parity,
+ * Auxiliary Carry, and Carry flags according to the standard rules. */
 
-// ANA (Logical AND register/memory with accumulator):
-// (A) = (A) & (r) or (A) = (A) & ((H)(L)); Flags affected: ALL, cy = 0.
+// ANA (Logical AND register/memory with accumulator); Flags affected: ALL, cy = 0.
 // Note: The 8080 logical AND instructions set the flag to reflect the logical OR of bit 3
 // of the values involved in the AND operation.
 void Intel8080::ANA(uint8_t operand) {
@@ -166,7 +165,7 @@ void Intel8080::ANA(uint8_t operand) {
     setZSP(a);
 }
 
-// ANI data (AND immediate with accumulator): (A) <- (A) AND (byte 2); Flags affected: ALL, cy = ac = 0.
+// ANI data (AND immediate with accumulator); Flags affected: ALL, cy = ac = 0.
 void Intel8080::ANI(uint8_t operand) {
     a &= operand;
     flag.cy = flag.ac = 0;
@@ -233,10 +232,7 @@ void Intel8080::CMC() { flag.cy = !flag.cy; }
 // STC (Set carry); Flags affected: cy = 1;
 void Intel8080::STC() { flag.cy = 1; }
 
-/* Logical Group:**************************************************************************************************END*/
-
-
-/* Branch Group:***************************************************************************************************BEG*/
+/* Branch Group: */
 // This group of instructions alter normal sequential program flow.
 // Condition flags are not affected by any instruction in this group.
 
@@ -272,12 +268,11 @@ void Intel8080::RST(uint16_t n) { CALL(8 * n); }
 
 // PCHL (Jump H and L indirect - move H and L to PC)
 void Intel8080::PCHL() { pc = getHL(); }
-/* Branch Group:***************************************************************************************************END*/
 
 
-/* Stack, I/O, and Machine Control Group:**************************************************************************BEG*/
-// This group of instructions performs I/O, manipulates the Stack, and alters internal control flags.
-// Unless otherwise specified, condition flags are not affected by any instructions in this group.
+/* Stack, I/O, and Machine Control Group:
+ * This group of instructions performs I/O, manipulates the Stack, and alters internal control flags.
+ * Unless otherwise specified, condition flags are not affected by any instructions in this group. */
 
 // PUSH rp (Push the value in the specified register pair onto the stack)
 void Intel8080::PUSH(uint8_t* rh, uint8_t* rl) {
@@ -296,17 +291,5 @@ void Intel8080::POP_PSW() {}
 void Intel8080::PUSH_PSW() {}
 
 
-
-
 // Exchange the contents of the H and L registers with the top of the stack (XTHL).
 void Intel8080::XTHL() {}
-
-
-
-
-
-
-
-
-
-
