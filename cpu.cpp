@@ -3,6 +3,7 @@
 Intel8080::Intel8080() : a(0), b(0), c(0), d(0), e(0), h(0), l(0), sp(0), pc(0), memory(nullptr), int_enable(0) {}
 
 
+/* Utility functions for setting flags. */
 bool Intel8080::parity(uint8_t value) {
     value ^= value >> 4; // XOR the high 4 bits with the low 4 bits
     value ^= value >> 2; // XOR the high 2 bits of the result with the low 2 bits
@@ -14,194 +15,298 @@ bool Intel8080::parity(uint8_t value) {
     return !(value & 1);
 }
 
-
-void Intel8080::setArithmeticFlags(uint8_t x, uint8_t y, bool isAddition, uint8_t prevCY = 0) {
-    uint16_t result = isAddition ? x + y + prevCY : x - y - prevCY;
-    flag.z  = (result & 0xFF) == 0;
-    flag.s  = (result & 0x80) != 0;
-    flag.p  = parity(result & 0xFF);
-    flag.ac = isAddition ? (x & 0x0F) + (y & 0x0F) + prevCY > 0x0F : (x & 0x0F) < (y & 0x0F) + prevCY;
+void Intel8080::setZSP(uint8_t result) {
+    flag.z = result == 0x00;
+    flag.s = (result & 0x80) == 0x80;
+    flag.p = parity(result);
 }
 
-void Intel8080::setBcdArithmeticFlags(uint8_t x, uint8_t y, bool isAddition, uint8_t prevCY = 0) {
-    uint16_t result = isAddition ? x + y + prevCY : x - y - prevCY;
-    flag.z  = (result & 0xFF) == 0;
-    flag.s  = (result & 0x80) != 0;
-    flag.p  = parity(result & 0xFF);
-    flag.cy = isAddition ? result > 0xFF : x < y + prevCY;
-    flag.ac = isAddition ? (x & 0x0F) + (y & 0x0F) + prevCY > 0x0F : (x & 0x0F) < (y & 0x0F) + prevCY;
-}
-
-void Intel8080::setLogicFlags() {
-
-}
+/* Utility function for data transfer. */
+uint16_t getAddr(const uint8_t* opcode) { return (opcode[2] << 8) | opcode[1]; }
 
 /* Opcode Functions ==================================================================================================*/
 
-// ADC ADD Register or Memory To Accumulator With Carry; Flags affected: z, s, p, cy, ac
-void Intel8080::ADC(uint8_t operand) {
-    uint16_t result = a + operand + flag.cy;
-    setBcdArithmeticFlags(a, operand, true, flag.cy);
-    a = result & 0xFF;
+/* Data Transfer Group:********************************************************************************************BEG*/
+// This group of instructions transfers data to and from registers and memory. Condition flags are not affected by
+// any instruction in this group.
+
+// Move data between register/memory.
+void Intel8080::MOV(uint8_t* dst, uint8_t* src) { *dst = *src; }
+
+// Move to register/memory immediate.
+void Intel8080::MVI(uint8_t *dst, uint8_t byte) { *dst = byte; }
+
+// LXI, rp, data 16 (Load resister pair immediate): (rh) <- (byte 3), (rl) <- (byte 2).
+// Note: Stored from LSB to MSB since the 8080 is little endian.
+void Intel8080::LXI(uint8_t* rh, uint8_t* rl, const uint8_t* opcode) {
+    *rh = opcode[2];    // high-order register
+    *rl = opcode[1];    // low-order register
 }
 
-// ADD Register or Memory To Accumulator; Flags affected: z, s, p, cy, ac
-void Intel8080::ADD(uint8_t operand) {
-    uint16_t result = a + operand;
-    setBcdArithmeticFlags(a, operand, true);
-    a = result & 0xFF;
+// LDA addr (Load Accumulator direct): (A) <- ((byte 3)(byte 2))
+void Intel8080::LDA(const uint8_t* opcode) { a = memory[getAddr(opcode)]; }
+
+// STA addr (Store Accumulator direct): ((byte 3)(byte 2)) <- (A)
+void Intel8080::STA(uint8_t* opcode) { memory[getAddr(opcode)] = a; }
+
+// LHLD addr (Load H and L direct): (L) <- ((byte 3)(byte 2)), H <- ((byte 3)(byte 2) + 1);
+void Intel8080::LHLD(uint8_t* opcode) {
+    uint16_t addr = getAddr(opcode);
+    l = memory[addr];
+    h = memory[addr + 1];
 }
 
-// Perform bitwise AND between the accumulator and operand.
-void Intel8080::ANA(uint8_t operand) {}
+// SHLD addr (Store H and L direct): ((byte 3)(byte 2)) <- L, ((byte 3)(byte 2) + 1) <- H;
+void Intel8080::SHLD(uint8_t* opcode) {
+    uint16_t addr = getAddr(opcode);
+    memory[addr]     = l;
+    memory[addr + 1] = h;
+}
 
-// Call subroutine at the specified memory address in opcode.
-void Intel8080::CALL(uint8_t* opcode) {}
+// LDAX (Load Accumulator indirect): (A) <- ((rp))
+void Intel8080::LDAX(uint16_t rp) { a = memory[rp]; }
 
-// Complement the accumulator (logical NOT).
-void Intel8080::CMA() {}
+// STAX (Store Accumulator indirect): ((rp)) <- (A)
+void Intel8080::STAX(uint16_t rp) { memory[rp] = a; }
 
-// Complement the carry flag (toggle it).
-void Intel8080::CMC() {}
+// XCHG (Exchange H and L with D and E)
+void Intel8080::XCHG() {
+    uint8_t tempH = h, tempL = l;
+    h = d;      l = e;
+    d = tempH;  e = tempL;
+}
+/* Data Transfer Group:********************************************************************************************END*/
 
-// Compare the accumulator with a register or memory (set flags based on the result).
-void Intel8080::CMP() {}
+/* Arithmetic Group:***********************************************************************************************BEG*/
+// This group of instructions performs arithmetic operations on data in registers and memory.
+// Unless indicated otherwise, all instructions in this group affect the Zero, Sign, Parity, Carry,
+// and Auxiliary Carry flags according to the standard rules.
+// All subtraction operations are performed via two's complement arithmetic and set the carry flag
+// to one to indicate a borrow and clear it to indicate no borrow.
+
+// ADD/ADC/ADI/ACI (Add register/memory/immediate with/without carry to Accumulator); Flags affected ALL.
+void Intel8080::ADD(uint8_t addend, bool cy) {
+    uint16_t result = a + addend + cy;
+    flag.cy = result > 0xFF;
+    flag.ac = (((a & 0xF) + (addend & 0xF) + cy) & 0x10) == 0x10;
+    a = result & 0xFF;
+    setZSP(a);
+}
+
+// SUB/SUI/SBB/SBI (Subtract register/memory/immediate with/without borrow from Accumulator); Flags affected: ALL.
+void Intel8080::SUB(uint8_t subtrahend, bool cy) {
+    uint16_t result = a - subtrahend - cy;
+    flag.cy = a < subtrahend + cy;
+    flag.ac = (((a & 0xF) - (subtrahend & 0xF) - cy) & 0x10) == 0x10;
+    a = result & 0xFF;
+    setZSP(a);
+}
+
+// INR (Increment register/memory); Flags affected: All except CY.
+void Intel8080::INR(uint8_t* target) {
+    uint16_t result = *target + 1;
+    flag.ac = (*target & 0x0F) + 1 > 0x0F;
+    *target = result & 0xFF;
+    setZSP(*target);
+}
+
+// DCR (Decrement register/memory); Flags affected: ALL except CY.
+void Intel8080::DCR(uint8_t* target) {
+    flag.ac = (*target & 0x0F) == 0;
+    uint16_t result = *target - 1;
+    *target = result & 0xFF;
+    setZSP(*target);
+}
+
+// INX (Increment register pair): INX rp: (rh) (rl) <- (rh) (rl) + 1; Flags affected: NONE
+void Intel8080::INX(uint8_t* rh, uint8_t* rl) {
+    if (++(*rl) == 0) (*rh)++; // overflow
+}
+
+// DCX (Decrement register pair): INX rp: (rh) (rl) <- (rh) (rl) - 1; Flags affected: NONE
+void Intel8080::DCX(uint8_t* rh, uint8_t* rl) {
+    if (--(*rl) == 0xFF) (*rh)--; // underflow
+}
 
 // DAA Decimal Adjust Accumulator for BCD (Binary Coded Decimal) arithmetic.
+// The eight-bit number in the accumulator is adjusted to form two four-bit BCD digits by
+// the following process:
+//
+// 1. If the value of the least significant 4 bits of the accumulator is greater than 9
+// or if the AC flag is set, 6 is added to the accumulator.
+//
+// 2. If the value of the most significant 4 bits of the accumulator is now greater than 9,
+// or if the CY flag is set, 6 is added to the most significant 4 bits of the accumulator.
 void Intel8080::DAA() {
-    if ((a & 0x0F) > 0x09 || flag.ac) ADD(0x06);
-    if ((a & 0xF0) > 0x90 || flag.cy) ADD(0x60);
+    // TODO
 }
 
-// Double Add. Add the specified register pair to the HL register pair; Flags affected: cy
-void Intel8080::DAD(uint16_t regPair) {
-    uint16_t hl = getHL();
-    uint32_t result = (uint32_t) hl + (uint32_t) regPair;
-
+// DAD rp (Add register pair to H and L): (H)(L) <- (H)(L) + (rh)(rl); Flags affected: Only CY.
+void Intel8080::DAD(uint16_t rp) {
+    uint32_t result = getHL() + rp;
     h = (result >> 8) & 0xFF;
     l = result & 0xFF;
+    flag.cy = result > 0xFFFF;
+}
+/* Arithmetic Group:***********************************************************************************************END*/
 
-    flag.cy = (result > 0xFFFF);
+/* Logical Group:**************************************************************************************************BEG*/
+// This group of instructions performs logical (Boolean) operations on data in registers and memory and on
+// condition flags. Unless indicated otherwise, all instructions in this group affect the Zero, Sign, Parity,
+// Auxiliary Carry, and Carry flags according to the standard rules.
+
+// ANA (Logical AND register/memory with accumulator):
+// (A) = (A) & (r) or (A) = (A) & ((H)(L)); Flags affected: ALL, cy = 0.
+// Note: The 8080 logical AND instructions set the flag to reflect the logical OR of bit 3
+// of the values involved in the AND operation.
+void Intel8080::ANA(uint8_t operand) {
+    flag.cy = 0;
+    flag.ac = (a | operand) & 0x08;
+    a &= operand;
+    setZSP(a);
 }
 
-// Decrement the value in the given register; Flags affected: z, s, p, ac
-void Intel8080::DCR(uint8_t* reg) {
-    uint16_t result = *reg - 1;
-    setArithmeticFlags(*reg, 1, false);
-    *reg = result & 0xFF;
+// ANI data (AND immediate with accumulator): (A) <- (A) AND (byte 2); Flags affected: ALL, cy = ac = 0.
+void Intel8080::ANI(uint8_t operand) {
+    a &= operand;
+    flag.cy = flag.ac = 0;
+    setZSP(a);
 }
 
-// DCX Decrement the value in the given register pair; Flags affected: None
-void Intel8080::DCX(uint8_t* msbReg, uint8_t* lsbReg) {
-    if (--(*lsbReg) == 0xFF) (*msbReg)--; // underflow
+// ORA/ORI (Logical OR the accumulator with register/memory/data); Flags affected: ALL, cy = ac = 0.
+void Intel8080::ORA(uint8_t operand) {
+    a |= operand;
+    flag.cy = flag.ac = 0;
+    setZSP(a);
 }
 
-// INR Increment the value in the given register; Flags affected: z, s, p, ac
-void Intel8080::INR(uint8_t* reg) {
-    uint16_t result = *reg + 1;
-    setArithmeticFlags(*reg, 1, true);
-    *reg = result & 0xFF;
+
+// XRA/XRI (Exclusive OR the accumulator with register/memory/data); Flags affected: ALL, cy = ac = 0.
+void Intel8080::XRA(uint8_t operand) {
+    a ^= operand;
+    flag.cy = flag.ac = 0;
+    setZSP(a);
 }
 
-// Increment the value in the given register pair; Flags affected: None
-void Intel8080::INX(uint8_t* msbReg, uint8_t* lsbReg) {
-    if (++(*lsbReg) == 0) (*msbReg)++; // overflow
+// CMP/CPI (Compare register/memory/immediate with accumulator); Flags affected: ALL.
+void Intel8080::CMP(uint8_t value) {
+    uint16_t result = a - value;
+    flag.cy = a < value;
+    flag.ac = (((a & 0x0F) - (value & 0x0F)) & 0x10) == 0x10;
+    setZSP(result & 0xFF);
 }
 
-// Jump to the address specified in opcode.
-void Intel8080::JMP(uint8_t* opcode) {}
-
-// Load the accumulator with the value from the specified memory address.
-void Intel8080::LDA(uint8_t* opcode) {}
-
-// LDAX Load Accumulator (indirectly through a register pair address BC or DE); Flags affected: None
-void Intel8080::LDAX(uint16_t regPair) { a = memory[regPair]; }
-
-// Load H and L direct from memory (LHLD).
-void Intel8080::LHLD(uint8_t* opcode) {}
-
-// Load the specified register pair with the immediate value (given in opcode); Flags affected: None.
-void Intel8080::LXI(uint8_t* msbReg, uint8_t* lsbReg, const uint8_t* opcode) {
-    *msbReg = opcode[2];
-    *lsbReg = opcode[1];
-}
-
-// Logical OR the accumulator with the specified operand.
-void Intel8080::ORA(uint8_t* operand) {}
-
-// Pop the value off the stack into the specified register pair.
-void Intel8080::POP(uint8_t* msbReg, uint8_t* lsbReg) {}
-
-// Pop the Processor Status Word off the stack (flags and accumulator).
-void Intel8080::POP_PSW() {}
-
-// Push the value in the specified register pair onto the stack.
-void Intel8080::PUSH(uint8_t* msbReg, uint8_t* lsbReg) {}
-
-// Push the Processor Status Word onto the stack (flags and accumulator).
-void Intel8080::PUSH_PSW() {}
-
-// RAL Rotate Accumulator Left Through Carry. Flags affected: cy = msb
-void Intel8080::RAL() {
-    uint8_t msb = (a >> 7) & 1;
-    a = (a << 1) | flag.cy; // msb = prev cy
-    flag.cy = msb;
-}
-
-// RAR Rotate Accumulator Right Through Carry. Flags affected: cy = lsb
-void Intel8080::RAR() {
-    uint8_t lsb = a & 1;
-    a = (flag.cy << 7) | (a >> 1); // lsb = prev cy
-    flag.cy = lsb;
-}
-
-// Return from subroutine.
-void Intel8080::RET() {}
-
-// Rotate Accumulator Left; Flags affected: cy = msb (most significant bit)
+// RLC (Rotate [Accumulator] left); Flags affected: cy = msb (most significant bit)
 void Intel8080::RLC() {
     uint8_t msb = (a >> 7) & 1;
     a = (a << 1) | msb;
     flag.cy = msb;
 }
 
-// Rotate Accumulator Right; Flags affected: cy = lsb (least significant bit)
+// RRC (Rotate [Accumulator] right); Flags affected: cy = lsb (least significant bit)
 void Intel8080::RRC() {
     uint8_t lsb = a & 1;
     a = (lsb << 7) | (a >> 1);
     flag.cy = lsb;
 }
 
-// Store H and L direct to memory (SHLD).
-void Intel8080::SHLD(uint8_t* opcode) {}
-
-// Store the accumulator direct to memory (STA).
-void Intel8080::STA(uint8_t* opcode) {}
-
-// STAX Store Accumulator (indirectly into address pointed by BC or DE); Flags affected: None
-void Intel8080::STAX(uint16_t regPair) { memory[regPair] = a; }
-
-// Subtract operand from accumulator with borrow (SBB); Flags affected: z, s, p, cy, ac
-void Intel8080::SBB(uint8_t operand) {
-    uint16_t result = a - operand - flag.cy;
-    setBcdArithmeticFlags(a, operand, false, flag.cy);
-    a = result & 0xFF;
+// RAL (Rotate [accumulator] left through carry); Flags affected: cy = msb.
+void Intel8080::RAL() {
+    uint8_t msb = (a >> 7) & 1;
+    a = (a << 1) | flag.cy; // msb = prev cy
+    flag.cy = msb;
 }
 
-// SUB Subtract Register or Memory From Accumulator; Flags affected z, s, p, cy, ac
-void Intel8080::SUB(uint8_t operand) {
-    uint16_t result = a - operand;
-    setBcdArithmeticFlags(a, operand, false);
-    a = result & 0xFF;
+// RAR (Rotate [accumulator] right through carry). Flags affected: cy = lsb.
+void Intel8080::RAR() {
+    uint8_t lsb = a & 1;
+    a = (flag.cy << 7) | (a >> 1); // lsb = prev cy
+    flag.cy = lsb;
 }
 
-// Exchange the contents of the H and L registers with the D and E registers.
-void Intel8080::XCHG() {}
+// CMA (Complement accumulator) (logical NOT); Flags affected: NONE.
+void Intel8080::CMA() { a = ~a; }
 
-// Exclusive OR the accumulator with operand (XRA).
-void Intel8080::XRA(uint8_t operand) {}
+// CMC (Complement carry); Flags affected: cy.
+void Intel8080::CMC() { flag.cy = !flag.cy; }
+
+// STC (Set carry); Flags affected: cy = 1;
+void Intel8080::STC() { flag.cy = 1; }
+
+/* Logical Group:**************************************************************************************************END*/
+
+
+/* Branch Group:***************************************************************************************************BEG*/
+// This group of instructions alter normal sequential program flow.
+// Condition flags are not affected by any instruction in this group.
+
+// JMP addr (Jump)
+void Intel8080::JMP(uint8_t* opcode) { pc = getAddr(opcode); }
+
+// Jcondition addr (Conditional jump)
+void Intel8080::JMP(uint8_t *opcode, bool cond) { if (cond) pc = getAddr(opcode); }
+
+// CALL addr (Call)
+void Intel8080::CALL(uint16_t addr) {
+    uint16_t ret = pc + 2;
+    memory[sp-2] = ret & 0xFF;          // store LSB before MSB
+    memory[sp-1] = (ret >> 8) & 0xFF;   // store MSB after LSB
+    sp -= 2;
+    pc = addr;
+}
+
+// Ccondition addr (Condition call)
+void Intel8080::CALL(uint16_t addr, bool cond) { if (cond) CALL(addr); }
+
+// RET (Return [from a subroutine])
+void Intel8080::RET() {
+    pc = (memory[sp + 1] << 8) | memory[sp]; //
+    sp += 2;
+}
+
+// Rcondition (Conditional return)
+void Intel8080::RET(bool cond) { if (cond) RET(); }
+
+// RST n (Restart)
+void Intel8080::RST(uint16_t n) { CALL(8 * n); }
+
+// PCHL (Jump H and L indirect - move H and L to PC)
+void Intel8080::PCHL() { pc = getHL(); }
+/* Branch Group:***************************************************************************************************END*/
+
+
+/* Stack, I/O, and Machine Control Group:**************************************************************************BEG*/
+// This group of instructions performs I/O, manipulates the Stack, and alters internal control flags.
+// Unless otherwise specified, condition flags are not affected by any instructions in this group.
+
+// PUSH rp (Push the value in the specified register pair onto the stack)
+void Intel8080::PUSH(uint8_t* rh, uint8_t* rl) {
+
+}
+
+// Pop the value off the stack into the specified register pair.
+void Intel8080::POP(uint8_t* rh, uint8_t* rl) {}
+
+// Pop the Processor Status Word off the stack (flags and accumulator).
+void Intel8080::POP_PSW() {}
+
+
+
+// Push the Processor Status Word onto the stack (flags and accumulator).
+void Intel8080::PUSH_PSW() {}
+
+
+
 
 // Exchange the contents of the H and L registers with the top of the stack (XTHL).
 void Intel8080::XTHL() {}
+
+
+
+
+
+
+
+
 
 

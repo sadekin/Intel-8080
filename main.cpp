@@ -97,7 +97,7 @@
  *
  * returns the number of bytes of the opcode
 */
-int Disassemble8080Op(unsigned char* buffer, int pc) {
+int Disassemble8080Op(uint8_t* buffer, int pc) {
     int opcodeBytes = 1;
 
     printf("%04x  ", pc);
@@ -966,7 +966,7 @@ int main() {
     // Reset the position to the beginning of the file for reading
     f.seekg(0, std::ios::beg);
 
-    std::vector<unsigned char> buffer(fsize);
+    std::vector<uint8_t> buffer(fsize);
     if (!f.read(reinterpret_cast<char*>(buffer.data()), fsize)) {
         std::cerr << "Error reading file." << std::endl;
         return 1;
