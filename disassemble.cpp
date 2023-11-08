@@ -119,7 +119,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x0e: printf("MVI   C,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
         case 0x0f: printf("RRC");                                                                       break;
 
-            // 0x10 - 0x1f
+        // 0x10 - 0x1f
         case 0x10: printf("NOP");                                                                       break;
         case 0x11: printf("LXI   D,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;       break;
         case 0x12: printf("STAX  D");                                                                   break;
@@ -137,7 +137,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x1e: printf("MVI   E,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
         case 0x1f: printf("RAR");                                                                       break;
 
-            // 0x20 - 0x2f
+        // 0x20 - 0x2f
         case 0x20: printf("RIM");                                                                       break;
         case 0x21: printf("LXI   H,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;       break;
         case 0x22: printf("SHLD  0x%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;         break;
@@ -155,7 +155,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x2e: printf("MVI   L,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
         case 0x2f: printf("CMA");                                                                       break;
 
-            // 0x30 - 0x3f
+        // 0x30 - 0x3f
         case 0x30: printf("SIM");                                                                       break;
         case 0x31: printf("LXI   SP,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;      break;
         case 0x32: printf("STA   $%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;          break;
@@ -173,7 +173,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x3e: printf("MVI   A,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
         case 0x3f: printf("CMC");                                                                       break;
 
-            // 0x40 - 0x4f
+        // 0x40 - 0x4f
         case 0x40: printf("MOV   B,B");                                                                 break;
         case 0x41: printf("MOV   B,C");                                                                 break;
         case 0x42: printf("MOV   B,D");                                                                 break;
@@ -191,7 +191,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x4e: printf("MOV   C,M");                                                                 break;
         case 0x4f: printf("MOV   C,A");                                                                 break;
 
-            // 0x50 - 0x5f
+        // 0x50 - 0x5f
         case 0x50: printf("MOV   D,B");                                                                 break;
         case 0x51: printf("MOV   D,C");                                                                 break;
         case 0x52: printf("MOV   D,D");                                                                 break;
@@ -209,7 +209,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x5e: printf("MOV   E,M");                                                                 break;
         case 0x5f: printf("MOV   E,A");                                                                 break;
 
-            // 0x60 - 0x6f
+        // 0x60 - 0x6f
         case 0x60: printf("MOV   H,B");                                                                 break;
         case 0x61: printf("MOV   H,C");                                                                 break;
         case 0x62: printf("MOV   H,D");                                                                 break;
@@ -227,7 +227,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x6e: printf("MOV   L,M");                                                                 break;
         case 0x6f: printf("MOV   L,A");                                                                 break;
 
-            // 0x70 - 0x7f
+        // 0x70 - 0x7f
         case 0x70: printf("MOV   M,B");                                                                 break;
         case 0x71: printf("MOV   M,C");                                                                 break;
         case 0x72: printf("MOV   M,D");                                                                 break;
@@ -245,7 +245,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x7e: printf("MOV   A,M");                                                                 break;
         case 0x7f: printf("MOV   A,A");                                                                 break;
 
-            // 0x80 - 0x8f
+        // 0x80 - 0x8f
         case 0x80: printf("ADD   B");                                                                   break;
         case 0x81: printf("ADD   C");                                                                   break;
         case 0x82: printf("ADD   D");                                                                   break;
@@ -263,7 +263,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x8e: printf("ADC   M");                                                                   break;
         case 0x8f: printf("ADC   A");                                                                   break;
 
-            // 0x90 - 0x9f
+        // 0x90 - 0x9f
         case 0x90: printf("SUB   B");                                                                   break;
         case 0x91: printf("SUB   C");                                                                   break;
         case 0x92: printf("SUB   D");                                                                   break;
@@ -281,7 +281,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x9e: printf("SBB   M");                                                                   break;
         case 0x9f: printf("SBB   A");                                                                   break;
 
-            // 0xa0 - 0xaf
+        // 0xa0 - 0xaf
         case 0xa0: printf("ANA   B");                                                                   break;
         case 0xa1: printf("ANA   C");                                                                   break;
         case 0xa2: printf("ANA   D");                                                                   break;
@@ -299,7 +299,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0xae: printf("XRA   M");                                                                   break;
         case 0xaf: printf("XRA   A");                                                                   break;
 
-            // 0xb0 - 0xbf
+        // 0xb0 - 0xbf
         case 0xb0: printf("ORA   B");                                                                   break;
         case 0xb1: printf("ORA   C");                                                                   break;
         case 0xb2: printf("ORA   D");                                                                   break;
@@ -317,7 +317,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0xbe: printf("CMP   M");                                                                   break;
         case 0xbf: printf("CMP   A");                                                                   break;
 
-            // 0xc0 - 0xcf
+        // 0xc0 - 0xcf
         case 0xc0: printf("RNZ");                                                                       break;
         case 0xc1: printf("POP   B");                                                                   break;
         case 0xc2: printf("JNZ   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
@@ -335,7 +335,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0xce: printf("ACI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
         case 0xcf: printf("RST   1");                                                                   break;
 
-            // 0xd0 - 0xdf
+        // 0xd0 - 0xdf
         case 0xd0: printf("RNC");                                                                       break;
         case 0xd1: printf("POP   D");                                                                   break;
         case 0xd2: printf("JNC   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
@@ -353,7 +353,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0xde: printf("SBI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
         case 0xdf: printf("RST   3");                                                                   break;
 
-            // 0xe0 - 0xef
+        // 0xe0 - 0xef
         case 0xe0: printf("RPO");                                                                       break;
         case 0xe1: printf("POP   H");                                                                   break;
         case 0xe2: printf("JPO   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
@@ -371,7 +371,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0xee: printf("XRI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
         case 0xef: printf("RST   5");                                                                   break;
 
-            // 0xf0 - 0xff
+        // 0xf0 - 0xff
         case 0xf0: printf("RP");                                                                        break;
         case 0xf1: printf("POP   PSW");                                                                 break;
         case 0xf2: printf("JP    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
