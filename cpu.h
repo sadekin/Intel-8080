@@ -74,9 +74,9 @@ private:
     void CMP(uint8_t value);
     void DAA();
     void DAD(uint16_t rp);
-    void DCR(uint8_t *reg);
+    void DCR(uint8_t* target);
     void DCX(uint8_t* rh, uint8_t* rl);
-    void INR(uint8_t* reg);
+    void INR(uint8_t* target);
     void INX(uint8_t* rh, uint8_t* rl);
     void JMP(uint8_t* opcode);
     void JMP(uint8_t* opcode, bool cond);
@@ -100,6 +100,7 @@ private:
     void RRC();
     void RST(uint16_t n);
     void SHLD(uint8_t* opcode);
+    void SPHL();
     void STA(uint8_t* opcode);
     void STAX(uint16_t rp);
     void STC();

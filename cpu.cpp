@@ -34,13 +34,17 @@ uint16_t getAddr(const uint8_t* opcode) { return (opcode[2] << 8) | opcode[1]; }
 void Intel8080::MOV(uint8_t* dst, uint8_t* src) { *dst = *src; }
 
 // Move to register/memory immediate.
-void Intel8080::MVI(uint8_t *dst, uint8_t byte) { *dst = byte; }
+void Intel8080::MVI(uint8_t *dst, uint8_t byte) {
+    *dst = byte;
+    pc++;
+}
 
 // LXI rp, data 16 (Load resister pair immediate): (rh) <- (byte 3), (rl) <- (byte 2).
 // Note: Stored from LSB to MSB since the 8080 is little endian.
 void Intel8080::LXI(uint8_t* rh, uint8_t* rl, const uint8_t* opcode) {
     *rh = opcode[2];    // high-order register
     *rl = opcode[1];    // low-order register
+    pc += 2;
 }
 
 // LDA addr (Load Accumulator direct): (A) <- ((byte 3)(byte 2))
@@ -245,8 +249,8 @@ void Intel8080::JMP(uint8_t *opcode, bool cond) { if (cond) pc = getAddr(opcode)
 // CALL addr (Call)
 void Intel8080::CALL(uint16_t addr) {
     uint16_t ret = pc + 2;
-    memory[sp-2] = ret & 0xFF;          // store LSB before MSB
-    memory[sp-1] = (ret >> 8) & 0xFF;   // store MSB after LSB
+    memory[sp - 2] = ret & 0xFF;          // store LSB before MSB
+    memory[sp - 1] = (ret >> 8) & 0xFF;   // store MSB after LSB
     sp -= 2;
     pc = addr;
 }
@@ -276,20 +280,61 @@ void Intel8080::PCHL() { pc = getHL(); }
 
 // PUSH rp (Push the value in the specified register pair onto the stack)
 void Intel8080::PUSH(uint8_t* rh, uint8_t* rl) {
+    memory[sp - 2] = *rl;   // store LSB before MSB
+    memory[sp - 1] = *rh;   // store MSB after LSB
 
+    sp -= 2;
 }
 
-// Pop the value off the stack into the specified register pair.
-void Intel8080::POP(uint8_t* rh, uint8_t* rl) {}
+// POP rp (Pop the value off the stack into the specified register pair)
+void Intel8080::POP(uint8_t* rh, uint8_t* rl) {
+    *rl = memory[sp];       // LSB is stored first
+    *rh = memory[sp + 1];   // MSB is sorted second
 
-// Pop the Processor Status Word off the stack (flags and accumulator).
-void Intel8080::POP_PSW() {}
+    sp += 2;
+}
+
+// PUSH PSW (Push processor status word onto the stack (flags and accumulator)).
+void Intel8080::PUSH_PSW() {
+    memory[sp - 1] = a;
+
+    uint8_t psw = 0;
+    psw |= flag.cy << 0;
+    psw |=       1 << 1; // Not used, always one (see bottom of opcode table)
+    psw |=  flag.p << 2;
+    psw |= flag.ac << 4;
+    psw |=  flag.z << 6;
+    psw |=  flag.s << 7;
+    memory[sp - 2] = psw;
+
+    sp -= 2;
+}
+
+// POP PSW (Pop processor status word off the stack (flags and accumulator)).
+void Intel8080::POP_PSW() {
+    a = memory[sp + 1];
+
+    uint8_t psw = memory[sp];
+    flag.cy = (psw >> 0) & 1;
+    flag.p  = (psw >> 2) & 1;
+    flag.ac = (psw >> 4) & 1;
+    flag.z  = (psw >> 6) & 1;
+    flag.s  = (psw >> 7) & 1;
+
+    sp += 2;
+}
 
 
+// XHHL (Exchange stack top with H and L)
+void Intel8080::XTHL() {
+    uint8_t tempH = h, tempL = l;
 
-// Push the Processor Status Word onto the stack (flags and accumulator).
-void Intel8080::PUSH_PSW() {}
+    h = memory[sp + 1];
+    l = memory[sp];
 
+    memory[sp + 1] = tempH;
+    memory[sp] = tempL;
+}
 
-// Exchange the contents of the H and L registers with the top of the stack (XTHL).
-void Intel8080::XTHL() {}
+// SPHL (Move HL to SP)
+void Intel8080::SPHL() { sp = getHL(); }

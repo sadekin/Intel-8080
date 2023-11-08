@@ -5,105 +5,43 @@ void Intel8080::Emulate8080() {
     uint8_t* opcode = &memory[pc];
 
     switch (*opcode) {
-        case 0x00:  // NOP
-            break;
-        case 0x01:  // LXI B,word: B <- byte 3, C <- byte 2
-            LXI(&b, &c, opcode);
-            pc += 2;
-            break;
-        case 0x02:  // STAX B: (BC) <- A
-            STAX(getBC());
-            break;
-        case 0x03:  // INX B: BC <- BC+1
-            INX(&b, &c);
-            break;
-        case 0x04:  // INR B: B <- B+1
-            INR(&b);
-            break;
-        case 0x05:  // DCR B: B <- B-1
-            DCR(&b);
-            break;
-        case 0x06:  // MVI B,byte: B <- byte 2
-            b = opcode[1];
-            pc++;
-            break;
-        case 0x07:  // RLC: A = A << 1; bit 0 = prev bit 7; CY = prev bit 7
-            RLC();
-            break;
-        case 0x08:  // NOP
-            break;
-        case 0x09:  // DAD B: HL = HL + BC
-            DAD(getBC());
-            break;
-        case 0x0a:  // LDAX B: A <- (BC)
-            LDAX(getBC());
-            break;
-        case 0x0b:  // DCX B: BC = BC-1
-            DCX(&b, &c);
-            break;
-        case 0x0c:  // INR C: C <- C+1
-            INR(&c);
-            break;
-        case 0x0d:  // DCR C: C <- C-1
-            DCR(&c);
-            break;
-        case 0x0e:  // MVI C,byte: C <- byte 2
-            c = opcode[1];
-            pc++;
-            break;
-        case 0x0f:  // RRC: A = A >> 1; bit 7 = prev bit 0; CY = prev bit 0
-            RRC();
-            break;
-        case 0x10:  // NOP
-            break;
-        case 0x11:  // LXI D: D <- byte 3, E <- byte 2
-            LXI(&d, &e, opcode);
-            pc += 2;
-            break;
-        case 0x12:  // STAX D: (DE) <- A
-            STAX(getDE());
-            break;
-        case 0x13:  // INX D: DE <- DE + 1
-            INX(&d, &e);
-            break;
-        case 0x14:  // INR D: D <- D+1
-            INR(&d);
-            break;
-        case 0x15:  // DCR D: D <- D-1
-            DCR(&d);
-            break;
-        case 0x16:  // MVI D,byte: D <- byte 2
-            d = opcode[1];
-            pc++;
-            break;
-        case 0x17:  // RAL: A = A << 1; bit 0 = prev CY; CY = prev bit 7
-            RAL();
-            break;
-        case 0x18:
-            printf("NOP");
-            break;
-        case 0x19:  // HL = HL + DE
-            printf("DAD    D");
-            break;
-        case 0x1a:  // A <- (DE)
-            printf("LDAX    D");
-            break;
-        case 0x1b:  // DE = DE-1
-            printf("DCX    D");
-            break;
-        case 0x1c:  // E <- E+1
-            printf("INR    E");
-            break;
-        case 0x1d:  // E <- E-1
-            printf("DCR    E");
-            break;
-        case 0x1e:  // E <- byte 2
-//            printf("MVI    E,#$%02x", buffer[pc + 1]);
-//            opcodeBytes = 2;
-            break;
-        case 0x1f:  // A = A >> 1; bit 7 = prev bit 7; CY = prev bit 0
-            printf("RAR");
-            break;
+        // 0x00 - 0x0f
+        case 0x00:                          break;
+        case 0x01: LXI(&b, &c, opcode);     break;
+        case 0x02: STAX(getBC());           break;
+        case 0x03: INX(&b, &c);             break;
+        case 0x04: INR(&b);                 break;
+        case 0x05: DCR(&b);                 break;
+        case 0x06: MVI(&b, opcode[1]);      break;
+        case 0x07: RLC();                   break;
+        case 0x08:                          break;
+        case 0x09: DAD(getBC());            break;
+        case 0x0a: LDAX(getBC());           break;
+        case 0x0b: DCX(&b, &c);             break;
+        case 0x0c: INR(&c);                 break;
+        case 0x0d: DCR(&c);                 break;
+        case 0x0e: MVI(&c, opcode[1]);      break;
+        case 0x0f: RRC();                   break;
+
+        // 0x10 - 0x1f
+        case 0x10:                          break;
+        case 0x11: LXI(&d, &e, opcode);     break;
+        case 0x12: STAX(getDE());           break;
+        case 0x13: INX(&d, &e);             break;
+        case 0x14: INR(&d);                 break;
+        case 0x15: DCR(&d);                 break;
+        case 0x16: MVI(&d, opcode[1]);      break;
+        case 0x17: RAL();                   break;
+        case 0x18:                          break;
+        case 0x19: DAD(getDE());            break;
+        case 0x1a: LDAX(getDE());           break;
+        case 0x1b: DCX(&d, &e);             break;
+        case 0x1c: INR(&e);                 break;
+        case 0x1d: DCR(&e);                 break;
+        case 0x1e: MVI(&e, opcode[1]);      break;
+        case 0x1f: RAR();                   break;
+
+        // 0x20 - 0x2f
         case 0x20:  // special
             printf("RIM");
             break;
