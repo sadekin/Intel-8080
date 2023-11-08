@@ -68,7 +68,9 @@ private:
     void ANA(uint8_t operand);
     void ANI(uint8_t operand);
     void CALL(uint16_t addr);
+    void CALL(uint8_t* opcode);
     void CALL(uint16_t addr, bool cond);
+    void CALL(uint8_t* opcode, bool cond);
     void CMA();
     void CMC();
     void CMP(uint8_t value);
@@ -115,4 +117,5 @@ private:
 private:
     bool parity(uint8_t value);
     void setZSP(uint8_t result);
+    uint16_t getAddr(const uint8_t *opcode);
 };

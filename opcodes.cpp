@@ -222,227 +222,77 @@ void Intel8080::Emulate8080() {
         case 0xbe: CMP(memory[getHL()]);                break;
         case 0xbf: CMP(a);                              break;
 
+        // 0xc0 - 0xcf
+        case 0xc0: RET(flag.z == 0);                    break; // TODO: RNZ check
+        case 0xc1: POP(&b, &c);                         break; // POP B
+        case 0xc2: JMP(opcode, flag.z == 0);            break; // JNZ a16 = JMP a16 if not zero (Z = 0)
+        case 0xc3: JMP(opcode);                         break; // JMP a16
+        case 0xc4: CALL(opcode, flag.z == 0);           break; // TODO: CNZ check
+        case 0xc5: PUSH(&b, &c);                        break; // PUSH B
+        case 0xc6: ADD(opcode[1], false); pc++;         break; // ADI d8
+        case 0xc7: RST(0);                              break; // RST 0
+        case 0xc8: RET(flag.z == 1);                    break; // RZ = RET if zero (Z = 1)
+        case 0xc9: RET();                               break; // RET
+        case 0xca: JMP(opcode, flag.z == 1);            break; // JZ a16 = JMP a16 if zero (Z = 1)
+        case 0xcb:                                      break; // NOP (should not be used)
+        case 0xcc: CALL(opcode, flag.z == 1);           break; // CZ a16 = CALL a16 if zero (Z = 1)
+        case 0xcd: CALL(opcode);                        break; // CALL a16
+        case 0xce: ADD(opcode[1], flag.cy); pc++;       break; // ACI d8
+        case 0xcf: RST(1);                              break; // RST 1
 
-        case 0xc0:  // if NZ, RET
-            printf("RNZ");
-            break;
-        case 0xc1:  // C <- (sp); B <- (sp+1); sp <- sp+2
-            printf("POP    B");
-            break;
-        case 0xc2:  // if NZ, PC <- adr
-//            printf("JNZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xc3:  // PC <- adr
-//            printf("JMP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xc4:  // if NZ, CALL adr
-//            printf("CNZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xc5:  // (sp-2) <- C; (sp-1) <- B; sp <- sp - 2
-            printf("PUSH    B");
-            break;
-        case 0xc6:  // A <- A + byte
-//            printf("ADI    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xc7:  // CALL $0
-            printf("RST    0");
-            break;
-        case 0xc8:  // if Z, RET
-            printf("RZ");
-            break;
-        case 0xc9:  // PC.lo <- (sp); PC.hi<-(sp+1); sp <- sp+2
-            printf("RET");
-            break;
-        case 0xca:  // if Z, PC <- adr
-//            printf("JZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xcb:
-            printf("NOP");
-            break;
-        case 0xcc:  // if Z, CALL adr
-//            printf("CZ    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xcd:  // (sp-1) <- PC.hi; (sp-2) <- PC.lo; sp <- sp+2; PC = adr
-//            printf("CALL    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xce:  // A <- A + data + CY
-//            printf("ACI    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xcf:  // CALL $8
-            printf("RST    1");
-            break;
-        case 0xd0:  // if NCY, RET
-            printf("RNC");
-            break;
-        case 0xd1:  // E <- (sp); D <- (sp+1); sp <- sp+2
-            printf("POP    D");
-            break;
-        case 0xd2:  // if NCY, PC <- adr
-//            printf("JNC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xd3:  // special
-//            printf("OUT    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xd4:  // if NCY, CALL adr
-//            printf("CNC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xd5:  // (sp-2) <- E; (sp-1) <- D; sp <- sp - 2
-            printf("PUSH    D");
-            break;
-        case 0xd6:  // A <- A - data
-//            printf("SUI    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xd7:  // CALL $10
-            printf("RST    2");
-            break;
-        case 0xd8:  // if CY, RET
-            printf("RC");
-            break;
-        case 0xd9:
-            printf("NOP");
-            break;
-        case 0xda:  // if CY, PC <- adr
-//            printf("JC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xdb:  // special
-//            printf("IN    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xdc:  // if CY, CALL adr
-//            printf("CC    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xdd:
-            printf("NOP");
-            break;
-        case 0xde:  // A <- A - data - CY
-//            printf("SBI    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xdf:  // CALL $18
-            printf("RST    3");
-            break;
-        case 0xe0:  // if PO, RET
-            printf("RPO");
-            break;
-        case 0xe1:  // L <- (sp); H <- (sp+1); sp <- sp+2
-            printf("POP    H");
-            break;
-        case 0xe2:  // if PO, PC <- adr
-//            printf("JPO    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xe3:  // L <-> (SP); H <-> (SP+1)
-            printf("XTHL");
-            break;
-        case 0xe4:  // if PO, CALL adr
-//            printf("CPO    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xe5:  // (sp-2)<-L; (sp-1)<-H; sp <- sp - 2
-            printf("PUSH    H");
-            break;
-        case 0xe6:  // A <- A & data
-//            printf("ANI    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xe7:  // CALL $20
-            printf("RST    4");
-            break;
-        case 0xe8:  // if PE, RET
-            printf("RPE");
-            break;
-        case 0xe9:  // PC.hi <- H; PC.lo <- L
-            printf("PCHL");
-            break;
-        case 0xea:  // if PE, PC <- adr
-//            printf("JPE    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xeb:  // H <-> D; L <-> E
-            printf("XCHG");
-            break;
-        case 0xec:  // if PE, CALL adr
-//            printf("CPE    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xed:
-            printf("NOP");
-            break;
-        case 0xee:  // A <- A ^ data
-//            printf("XRI    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xef:  // CALL $28
-            printf("RST    5");
-            break;
-        case 0xf0:  // if P, RET
-            printf("RP");
-            break;
-        case 0xf1:  // flags <- (sp); A <- (sp+1); sp <- sp+2
-            printf("POP    PSW");
-            break;
-        case 0xf2:  // if P=1, PC <- adr
-//            printf("JP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xf3:  // special
-            printf("DI");
-            break;
-        case 0xf4:  // if P, PC <- adr
-//            printf("CP    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xf5:  // (sp-2)<-flags; (sp-1)<-A; sp <- sp - 2
-            printf("PUSH    PSW");
-            break;
-        case 0xf6:  // A <- A | data
-//            printf("ORI    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xf7:  // CALL $30
-            printf("RST    6");
-            break;
-        case 0xf8:  // if M, RET
-            printf("RM");
-            break;
-        case 0xf9:  // SP=HL
-            printf("SPHL");
-            break;
-        case 0xfa:  // if M, PC <- adr
-//            printf("JM    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xfb:  // special
-            printf("EI");
-            break;
-        case 0xfc:  // if M, CALL adr
-//            printf("CM    $%02x%02x", buffer[pc+2], buffer[pc+1]);
-//            opcodeBytes = 3;
-            break;
-        case 0xfd:
-            printf("NOP");
-            break;
-        case 0xfe:  // A - data
-//            printf("CPI    #$%02x", buffer[pc+1]);
-//            opcodeBytes = 2;
-            break;
-        case 0xff:  // CALL $38
-            printf("RST    7");
-            break;
+        // 0xd0 - 0xdf
+        case 0xd0: RET(flag.cy == 0);                   break; // RNC
+        case 0xd1: POP(&d, &e);                         break; // POP D
+        case 0xd2: JMP(opcode, flag.cy == 0);           break; // JNC a16 = JMP a16 if no carry (CY = 0)
+        case 0xd3:                                      break; // TODO: printf("OUT    #$%02x", buffer[pc+1]); opcodeBytes = 2;
+        case 0xd4: CALL(opcode, flag.cy == 0);          break; // CNC a16 = CALL a16 if no carry (CY = 0)
+        case 0xd5: PUSH(&d, &e);                        break; // PUSH D
+        case 0xd6: SUB(opcode[1], false); pc++;         break; // SUI d8
+        case 0xd7: RST(2);                              break; // RST 2
+        case 0xd8: RET(flag.cy == 1);                   break; // RET if carry (CY = 1)
+        case 0xd9:                                      break; // NOP (should not be used)
+        case 0xda: JMP(opcode, flag.cy == 1);           break; // JC a16 = JMP a16 if carry (CY = 1)
+        case 0xdb:                                      break; // TODO: printf("IN    #$%02x", buffer[pc+1]); opcodeBytes = 2;
+        case 0xdc: CALL(opcode, flag.cy == 1);          break; // CC a16 = CALL a16 if carry (CY = 1)
+        case 0xdd:                                      break; // NOP (should not be used)
+        case 0xde: SUB(opcode[1], flag.cy); pc++;       break; // SBI d8
+        case 0xdf: RST(3);                              break; // RST 3
+
+        // 0xe0 - 0xef
+        case 0xe0: RET(flag.p == 0);                    break; // RPO = RET if parity odd (P = 0)
+        case 0xe1: POP(&h, &l);                         break; // POP H
+        case 0xe2: JMP(opcode, flag.p == 0);            break; // JPO a16 = JMP a16 if parity odd (P = 0)
+        case 0xe3: XTHL();                              break; // XTHL
+        case 0xe4: CALL(opcode, flag.p == 0);           break; // CPO a16 = CALL a16 if parity odd (P = 0)
+        case 0xe5: PUSH(&h, &l);                        break; // PUSH H
+        case 0xe6: ANI(opcode[1]); pc++;                break; // ANI d8
+        case 0xe7: RST(4);                              break; // RST 4
+        case 0xe8: RET(flag.p == 1);                    break; // RPE = RET if parity even (P = 1)
+        case 0xe9: PCHL();                              break; // PCHL
+        case 0xea: JMP(opcode, flag.p == 1);            break; // JPE a16 = JMP a16 if parity even (P = 1)
+        case 0xeb: XCHG();                              break; // XCHG
+        case 0xec: CALL(opcode, flag.p == 1);           break; // CPE a16 = CALL a16 if parity even (P = 1)
+        case 0xed:                                      break; // NOP (should not be used)
+        case 0xee: XRA(opcode[1]); pc++;                break; // XRI d8
+        case 0xef: RST(5);                              break; // RST 5
+
+        // 0xf0 - 0xff
+        case 0xf0: RET(flag.s == 0);                    break; // RP = RET if plus (S = 0)
+        case 0xf1: POP_PSW();                           break; // POP PSW
+        case 0xf2: JMP(opcode, flag.s == 0);            break; // JP a16 = JMP a16 if plus (S = 0)
+        case 0xf3: printf("DI");                        break; // TODO: special
+        case 0xf4: CALL(opcode, flag.s == 0);           break; // CP a16 = CALL a16 if plus (S = 0)
+        case 0xf5: PUSH_PSW();                          break; // PUSH PSW
+        case 0xf6: ORA(opcode[1]); pc++;                break; // ORI d8
+        case 0xf7: RST(6);                              break; // RST 6
+        case 0xf8: RET(flag.s == 1);                    break; // RM = RET if minus (S = 1)
+        case 0xf9: SPHL();                              break; // SPHL
+        case 0xfa: JMP(opcode, flag.s == 1);            break; // JM a16 = JMP a16 if minus (S = 1)
+        case 0xfb: printf("EI");                        break; // TODO: special
+        case 0xfc: CALL(opcode, flag.s == 1);           break; // CM a16 = CALL a16 if minus (S = 1)
+        case 0xfd:                                      break; // NOP (should not be used)
+        case 0xfe: CMP(opcode[1]); pc++;                break; // CPI d8
+        case 0xff: RST(7);                              break; // RST 7
     }
 
     pc++;

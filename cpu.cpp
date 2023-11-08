@@ -21,7 +21,7 @@ void Intel8080::setZSP(uint8_t result) {
 }
 
 /* Utility function for data transfer. */
-uint16_t getAddr(const uint8_t* opcode) { return (opcode[2] << 8) | opcode[1]; }
+uint16_t Intel8080::getAddr(const uint8_t* opcode) { return (opcode[2] << 8) | opcode[1]; }
 
 /* Opcode Functions */
 
@@ -263,7 +263,10 @@ void Intel8080::STC() { flag.cy = 1; }
 void Intel8080::JMP(uint8_t* opcode) { pc = getAddr(opcode); }
 
 // Jcondition addr (Conditional jump)
-void Intel8080::JMP(uint8_t *opcode, bool cond) { if (cond) pc = getAddr(opcode); }
+void Intel8080::JMP(uint8_t *opcode, bool cond) {
+    if (cond) JMP(opcode);
+    else pc += 2;
+}
 
 // CALL addr (Call)
 void Intel8080::CALL(uint16_t addr) {
@@ -274,8 +277,20 @@ void Intel8080::CALL(uint16_t addr) {
     pc = addr;
 }
 
+// CALL addr (Call)
+void Intel8080::CALL(uint8_t* opcode) { CALL(getAddr(opcode)); }
+
 // Ccondition addr (Condition call)
-void Intel8080::CALL(uint16_t addr, bool cond) { if (cond) CALL(addr); }
+void Intel8080::CALL(uint16_t addr, bool cond) {
+    if (cond) CALL(addr);
+    else pc += 2;
+}
+
+// Ccondition addr (Condition call)
+void Intel8080::CALL(uint8_t* opcode, bool cond) {
+    if (cond) CALL(getAddr(opcode));
+    else pc += 2;
+}
 
 // RET (Return [from a subroutine])
 void Intel8080::RET() {
@@ -301,7 +316,6 @@ void Intel8080::PCHL() { pc = getHL(); }
 void Intel8080::PUSH(uint8_t* rh, uint8_t* rl) {
     memory[sp - 2] = *rl;   // store LSB before MSB
     memory[sp - 1] = *rh;   // store MSB after LSB
-
     sp -= 2;
 }
 
@@ -309,7 +323,6 @@ void Intel8080::PUSH(uint8_t* rh, uint8_t* rl) {
 void Intel8080::POP(uint8_t* rh, uint8_t* rl) {
     *rl = memory[sp];       // LSB is stored first
     *rh = memory[sp + 1];   // MSB is sorted second
-
     sp += 2;
 }
 
