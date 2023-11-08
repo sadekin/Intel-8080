@@ -76,14 +76,17 @@ private:
     void DAD(uint16_t rp);
     void DCR(uint8_t* target);
     void DCX(uint8_t* rh, uint8_t* rl);
+    void DCX_SP();
     void INR(uint8_t* target);
     void INX(uint8_t* rh, uint8_t* rl);
+    void INX_SP();
     void JMP(uint8_t* opcode);
     void JMP(uint8_t* opcode, bool cond);
     void LDA(const uint8_t* opcode);
     void LDAX(uint16_t rp);
     void LHLD(uint8_t* opcode);
     void LXI(uint8_t* rh, uint8_t* rl, const uint8_t* opcode);
+    void LXI_SP(uint8_t* opcode);
     void MOV(uint8_t* dst, uint8_t* src);
     void MVI(uint8_t* dst, uint8_t byte);
     void ORA(uint8_t operand);

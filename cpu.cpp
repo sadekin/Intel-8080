@@ -47,17 +47,30 @@ void Intel8080::LXI(uint8_t* rh, uint8_t* rl, const uint8_t* opcode) {
     pc += 2;
 }
 
+// LXI SP: SP.hi <- byte 3, SP.lo <- byte 2
+void Intel8080::LXI_SP(uint8_t* opcode) {
+    sp = getAddr(opcode);
+    pc += 2;
+}
+
 // LDA addr (Load Accumulator direct): (A) <- ((byte 3)(byte 2))
-void Intel8080::LDA(const uint8_t* opcode) { a = memory[getAddr(opcode)]; }
+void Intel8080::LDA(const uint8_t* opcode) {
+    a = memory[getAddr(opcode)];
+    pc += 2;
+}
 
 // STA addr (Store Accumulator direct): ((byte 3)(byte 2)) <- (A)
-void Intel8080::STA(uint8_t* opcode) { memory[getAddr(opcode)] = a; }
+void Intel8080::STA(uint8_t* opcode) {
+    memory[getAddr(opcode)] = a;
+    pc += 2;
+}
 
 // LHLD addr (Load H and L direct): (L) <- ((byte 3)(byte 2)), H <- ((byte 3)(byte 2) + 1);
 void Intel8080::LHLD(uint8_t* opcode) {
     uint16_t addr = getAddr(opcode);
     l = memory[addr];
     h = memory[addr + 1];
+    pc += 2;
 }
 
 // SHLD addr (Store H and L direct): ((byte 3)(byte 2)) <- L, ((byte 3)(byte 2) + 1) <- H;
@@ -65,6 +78,7 @@ void Intel8080::SHLD(uint8_t* opcode) {
     uint16_t addr = getAddr(opcode);
     memory[addr]     = l;
     memory[addr + 1] = h;
+    pc += 2;
 }
 
 // LDAX (Load Accumulator indirect): (A) <- ((rp))
@@ -128,10 +142,15 @@ void Intel8080::INX(uint8_t* rh, uint8_t* rl) {
     if (++(*rl) == 0) (*rh)++; // overflow
 }
 
+// INX SP (Increment stack pointer); Flags affected: NONE
+void Intel8080::INX_SP() { sp++; }
+
 // DCX rp (Decrement register pair); Flags affected: NONE
 void Intel8080::DCX(uint8_t* rh, uint8_t* rl) {
     if (--(*rl) == 0xFF) (*rh)--; // underflow
 }
+// DXC SP (Decrement stack pointer); Flags affected: NONE.
+void Intel8080::DCX_SP() { sp--; }
 
 // DAA Decimal Adjust Accumulator for BCD (Binary Coded Decimal) arithmetic.
 // The eight-bit number in the accumulator is adjusted to form two four-bit BCD digits by

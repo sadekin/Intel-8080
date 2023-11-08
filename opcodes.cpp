@@ -6,532 +6,223 @@ void Intel8080::Emulate8080() {
 
     switch (*opcode) {
         // 0x00 - 0x0f
-        case 0x00:                          break;
-        case 0x01: LXI(&b, &c, opcode);     break;
-        case 0x02: STAX(getBC());           break;
-        case 0x03: INX(&b, &c);             break;
-        case 0x04: INR(&b);                 break;
-        case 0x05: DCR(&b);                 break;
-        case 0x06: MVI(&b, opcode[1]);      break;
-        case 0x07: RLC();                   break;
-        case 0x08:                          break;
-        case 0x09: DAD(getBC());            break;
-        case 0x0a: LDAX(getBC());           break;
-        case 0x0b: DCX(&b, &c);             break;
-        case 0x0c: INR(&c);                 break;
-        case 0x0d: DCR(&c);                 break;
-        case 0x0e: MVI(&c, opcode[1]);      break;
-        case 0x0f: RRC();                   break;
+        case 0x00:                                      break; // NOP
+        case 0x01: LXI(&b, &c, opcode);                 break;
+        case 0x02: STAX(getBC());                       break;
+        case 0x03: INX(&b, &c);                         break;
+        case 0x04: INR(&b);                             break;
+        case 0x05: DCR(&b);                             break;
+        case 0x06: MVI(&b, opcode[1]);                  break;
+        case 0x07: RLC();                               break;
+        case 0x08:                                      break; // NOP
+        case 0x09: DAD(getBC());                        break;
+        case 0x0a: LDAX(getBC());                       break;
+        case 0x0b: DCX(&b, &c);                         break;
+        case 0x0c: INR(&c);                             break;
+        case 0x0d: DCR(&c);                             break;
+        case 0x0e: MVI(&c, opcode[1]);                  break;
+        case 0x0f: RRC();                               break;
 
         // 0x10 - 0x1f
-        case 0x10:                          break;
-        case 0x11: LXI(&d, &e, opcode);     break;
-        case 0x12: STAX(getDE());           break;
-        case 0x13: INX(&d, &e);             break;
-        case 0x14: INR(&d);                 break;
-        case 0x15: DCR(&d);                 break;
-        case 0x16: MVI(&d, opcode[1]);      break;
-        case 0x17: RAL();                   break;
-        case 0x18:                          break;
-        case 0x19: DAD(getDE());            break;
-        case 0x1a: LDAX(getDE());           break;
-        case 0x1b: DCX(&d, &e);             break;
-        case 0x1c: INR(&e);                 break;
-        case 0x1d: DCR(&e);                 break;
-        case 0x1e: MVI(&e, opcode[1]);      break;
-        case 0x1f: RAR();                   break;
+        case 0x10:                                      break; // NOP
+        case 0x11: LXI(&d, &e, opcode);                 break;
+        case 0x12: STAX(getDE());                       break;
+        case 0x13: INX(&d, &e);                         break;
+        case 0x14: INR(&d);                             break;
+        case 0x15: DCR(&d);                             break;
+        case 0x16: MVI(&d, opcode[1]);                  break;
+        case 0x17: RAL();                               break;
+        case 0x18:                                      break; // NOP
+        case 0x19: DAD(getDE());                        break;
+        case 0x1a: LDAX(getDE());                       break;
+        case 0x1b: DCX(&d, &e);                         break;
+        case 0x1c: INR(&e);                             break;
+        case 0x1d: DCR(&e);                             break;
+        case 0x1e: MVI(&e, opcode[1]);                  break;
+        case 0x1f: RAR();                               break;
 
         // 0x20 - 0x2f
-        case 0x20:  // special
-            printf("RIM");
-            break;
-        case 0x21:  // H <- byte 3, L <- byte 2
-//            printf("LXI    H,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-//            opcodeBytes = 3;
-            break;
-        case 0x22:  // (adr) <- L; (adr+1) <- H
-//            printf("SHLD    0x%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-//            opcodeBytes = 3;
-            break;
-        case 0x23:  // HL <- HL + 1
-            printf("INX    H");
-            break;
-        case 0x24:  // H <- H+1
-            printf("INR    H");
-            break;
-        case 0x25:  // H <- H-1
-            printf("DCR    H");
-            break;
-        case 0x26:  // L <- byte 2
-//            printf("MVI    H,#$%02x", buffer[pc + 1]);
-//            opcodeBytes = 2;
-            break;
-        case 0x27:  // special
-            printf("DAA");
-            break;
-        case 0x28:
-            printf("NOP");
-            break;
-        case 0x29:  // HL = HL + HI
-            printf("DAD    H");
-            break;
-        case 0x2a:  // L <- (adr); H <- (adr+1)
-//            printf("LHLD    0x%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-//            opcodeBytes = 3;
-            break;
-        case 0x2b:  // HL = HL-1
-            printf("DCX    H");
-            break;
-        case 0x2c:  // L <- L+1
-            printf("INR    L");
-            break;
-        case 0x2d:  // L <- L-1
-            printf("DCR    L");
-            break;
-        case 0x2e:  // L <- byte 2
-//            printf("MVI    L,#$%02x", buffer[pc + 1]);
-//            opcodeBytes = 2;
-            break;
-        case 0x2f:  // A <- !A
-            printf("CMA");
-            break;
-        case 0x30:  // special
-            printf("SIM");
-            break;
-        case 0x31:  // SP.hi <- byte 3, SP.lo <- byte 2
-//            printf("LXI    SP,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-//            opcodeBytes = 3;
-            break;
-        case 0x32:  // (adr) <- A
-//            printf("STA    $%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-//            opcodeBytes = 3;
-            break;
-        case 0x33:  // SP = SP + 1
-            printf("INX    SP");
-            break;
-        case 0x34:  // (HL) <- (HL)+1
-            printf("INR    M");
-            break;
-        case 0x35:  // (HL) <- (HL)-1
-            printf("DCR    M");
-            break;
-        case 0x36:  // (HL) <- byte 2
-//            printf("MVI    M,#$%02x", buffer[pc + 1]);
-//            opcodeBytes = 2;
-            break;
-        case 0x37:  // CY = 1
-            printf("STC");
-            break;
-        case 0x38:
-            printf("NOP");
-            break;
-        case 0x39:  // HL = HL + SP
-            printf("DAD    SP");
-            break;
-        case 0x3a:  // A <- (adr)
-//            printf("LDA    #$%02x%02x", buffer[pc + 2], buffer[pc + 1]);
-//            opcodeBytes = 3;
-            break;
-        case 0x3b:  // SP = SP-1
-            printf("DCX    SP");
-            break;
-        case 0x3c:  // A <- A+1
-            printf("INR    A");
-            break;
-        case 0x3d:  // A <- A-1
-            printf("DCR    A");
-            break;
-        case 0x3e:  // A <- byte 2
-//            printf("MVI    A,#$%02x", buffer[pc + 1]);
-//            opcodeBytes = 2;
-            break;
-        case 0x3f:  // CY = !CY
-            printf("CMC");
-            break;
-        case 0x40:  // B <- B
-            printf("MOV    B,B");
-            break;
-        case 0x41:  // B <- C
-            printf("MOV    B,C");
-            break;
-        case 0x42:  // B <- D
-            printf("MOV    B,D");
-            break;
-        case 0x43:  // B <- E
-            printf("MOV    B,E");
-            break;
-        case 0x44:  // B <- H
-            printf("MOV    B,H");
-            break;
-        case 0x45:  // B <- L
-            printf("MOV    B,L");
-            break;
-        case 0x46:  // B <- (HL)
-            printf("MOV    B,M");
-            break;
-        case 0x47:  // B <- A
-            printf("MOV    B,A");
-            break;
-        case 0x48:  // C <- B
-            printf("MOV    C,B");
-            break;
-        case 0x49:  // C <- C
-            printf("MOV    C,C");
-            break;
-        case 0x4a:  // C <- D
-            printf("MOV    C,D");
-            break;
-        case 0x4b:  // C <- E
-            printf("MOV    C,E");
-            break;
-        case 0x4c:  // C <- H
-            printf("MOV    C,H");
-            break;
-        case 0x4d:  // C <- L
-            printf("MOV    C,L");
-            break;
-        case 0x4e:  // C <- (HL)
-            printf("MOV    C,M");
-            break;
-        case 0x4f:  // C <- A
-            printf("MOV    C,A");
-            break;
-        case 0x50:  // D <- B
-            printf("MOV    D,B");
-            break;
-        case 0x51:  // D <- C
-            printf("MOV    D,C");
-            break;
-        case 0x52:  // D <- D
-            printf("MOV    D,D");
-            break;
-        case 0x53:  // D <- E
-            printf("MOV    D,E");
-            break;
-        case 0x54:  // D <- H
-            printf("MOV    D,H");
-            break;
-        case 0x55:  // D <- L
-            printf("MOV    D,L");
-            break;
-        case 0x56:  // D <- (HL)
-            printf("MOV    D,M");
-            break;
-        case 0x57:  // D <- A
-            printf("MOV    D,A");
-            break;
-        case 0x58:  // E <- B
-            printf("MOV    E,B");
-            break;
-        case 0x59:  // E <- C
-            printf("MOV    E,C");
-            break;
-        case 0x5a:  // E <- D
-            printf("MOV    E,D");
-            break;
-        case 0x5b:  // E <- E
-            printf("MOV    E,E");
-            break;
-        case 0x5c:  // E <- H
-            printf("MOV    E,H");
-            break;
-        case 0x5d:  // E <- L
-            printf("MOV    E,L");
-            break;
-        case 0x5e:  // E <- (HL)
-            printf("MOV    E,M");
-            break;
-        case 0x5f:  // E <- A
-            printf("MOV    E,A");
-            break;
-        case 0x60:  // H <- B
-            printf("MOV    H,B");
-            break;
-        case 0x61:  // H <- C
-            printf("MOV    H,C");
-            break;
-        case 0x62:  // H <- D
-            printf("MOV    H,D");
-            break;
-        case 0x63:  // H <- E
-            printf("MOV    H,E");
-            break;
-        case 0x64:  // H <- H
-            printf("MOV    H,H");
-            break;
-        case 0x65:  // H <- L
-            printf("MOV    H,L");
-            break;
-        case 0x66:  // H <- (HL)
-            printf("MOV    H,M");
-            break;
-        case 0x67:  // H <- A
-            printf("MOV    H,A");
-            break;
-        case 0x68:  // L <- B
-            printf("MOV    L,B");
-            break;
-        case 0x69:  // L <- C
-            printf("MOV    L,C");
-            break;
-        case 0x6a:  // L <- D
-            printf("MOV    L,D");
-            break;
-        case 0x6b:  // L <- E
-            printf("MOV    L,E");
-            break;
-        case 0x6c:  // L <- H
-            printf("MOV    L,H");
-            break;
-        case 0x6d:  // L <- L
-            printf("MOV    L,L");
-            break;
-        case 0x6e:  // L <- (HL)
-            printf("MOV    L,M");
-            break;
-        case 0x6f:  // L <- A
-            printf("MOV    L,A");
-            break;
-        case 0x70:  // (HL) <- B
-            printf("MOV    M,B");
-            break;
-        case 0x71:  // (HL) <- C
-            printf("MOV    M,C");
-            break;
-        case 0x72:  // (HL) <- D
-            printf("MOV    M,D");
-            break;
-        case 0x73:  // (HL) <- E
-            printf("MOV    M,E");
-            break;
-        case 0x74:  // (HL) <- H
-            printf("MOV    M,H");
-            break;
-        case 0x75:  // (HL) <- L
-            printf("MOV    M,L");
-            break;
-        case 0x76:  // special
-            printf("HLT");
-            break;
-        case 0x77:  // (HL) <- A
-            printf("MOV    M,A");
-            break;
-        case 0x78:  // A <- B
-            printf("MOV    A,B");
-            break;
-        case 0x79:  // A <- C
-            printf("MOV    A,C");
-            break;
-        case 0x7a:  // A <- D
-            printf("MOV    A,D");
-            break;
-        case 0x7b:  // A <- E
-            printf("MOV    A,E");
-            break;
-        case 0x7c:  // A <- H
-            printf("MOV    A,H");
-            break;
-        case 0x7d:  // A <- L
-            printf("MOV    A,L");
-            break;
-        case 0x7e:  // A <- (HL)
-            printf("MOV    A,M");
-            break;
-        case 0x7f:  // A <- A
-            printf("MOV    A,A");
-            break;
-        case 0x80:  // A <- A + B
-            printf("ADD    B");
-            break;
-        case 0x81:  // A <- A + C
-            printf("ADD    C");
-            break;
-        case 0x82:  // A <- A + D
-            printf("ADD    D");
-            break;
-        case 0x83:  // A <- A + E
-            printf("ADD    E");
-            break;
-        case 0x84:  // A <- A + H
-            printf("ADD    H");
-            break;
-        case 0x85:  // A <- A + L
-            printf("ADD    L");
-            break;
-        case 0x86:  // A <- A + (HL)
-            printf("ADD    M");
-            break;
-        case 0x87:  // A <- A + A
-            printf("ADD    A");
-            break;
-        case 0x88:  // A <- A + B + CY
-            printf("ADC    B");
-            break;
-        case 0x89:  // A <- A + C + CY
-            printf("ADC    C");
-            break;
-        case 0x8a:  // A <- A + D + CY
-            printf("ADC    D");
-            break;
-        case 0x8b:  // A <- A + E + CY
-            printf("ADC    E");
-            break;
-        case 0x8c:  // A <- A + H + CY
-            printf("ADC    H");
-            break;
-        case 0x8d:  // A <- A + L + CY
-            printf("ADC    L");
-            break;
-        case 0x8e:  // A <- A + (HL) + CY
-            printf("ADC    M");
-            break;
-        case 0x8f:  // A <- A + A + CY
-            printf("ADC    A");
-            break;
-        case 0x90:  // A <- A - B
-            printf("SUB    B");
-            break;
-        case 0x91:  // A <- A - C
-            printf("SUB    C");
-            break;
-        case 0x92:  // A <- A - D
-            printf("SUB    D");
-            break;
-        case 0x93:  // A <- A - E
-            printf("SUB    E");
-            break;
-        case 0x94:  // A <- A - H
-            printf("SUB    H");
-            break;
-        case 0x95:  // A <- A - L
-            printf("SUB    L");
-            break;
-        case 0x96:  // A <- A - (HL)
-            printf("SUB    M");
-            break;
-        case 0x97:  // A <- A - A
-            printf("SUB    A");
-            break;
-        case 0x98:  // A <- A - B - CY
-            printf("SBB    B");
-            break;
-        case 0x99:  // A <- A - C - CY
-            printf("SBB    C");
-            break;
-        case 0x9a:  // A <- A - D - CY
-            printf("SBB    D");
-            break;
-        case 0x9b:  // A <- A - E - CY
-            printf("SBB    E");
-            break;
-        case 0x9c:  // A <- A - H - CY
-            printf("SBB    H");
-            break;
-        case 0x9d:  // A <- A - L - CY
-            printf("SBB    L");
-            break;
-        case 0x9e:  // A <- A - HL - CY
-            printf("SBB    M");
-            break;
-        case 0x9f:  // A <- A - A - CY
-            printf("SBB    A");
-            break;
-        case 0xa0:  // A <- A & B
-            printf("ANA    B");
-            break;
-        case 0xa1:  // A <- A & C
-            printf("ANA    C");
-            break;
-        case 0xa2:  // A <- A & D
-            printf("ANA    D");
-            break;
-        case 0xa3:  // A <- A & E
-            printf("ANA    E");
-            break;
-        case 0xa4:  // A <- A & H
-            printf("ANA    H");
-            break;
-        case 0xa5:  // A <- A & L
-            printf("ANA    L");
-            break;
-        case 0xa6:  // A <- A & (HL)
-            printf("ANA    M");
-            break;
-        case 0xa7:  // A <- A & A
-            printf("ANA    A");
-            break;
-        case 0xa8:  // A <- A ^ B
-            printf("XRA    B");
-            break;
-        case 0xa9:  // A <- A ^ C
-            printf("XRA    C");
-            break;
-        case 0xaa:  // A <- A ^ D
-            printf("XRA    D");
-            break;
-        case 0xab:  // A <- A ^ E
-            printf("XRA    E");
-            break;
-        case 0xac:  // A <- A ^ H
-            printf("XRA    H");
-            break;
-        case 0xad:  // A <- A ^ L
-            printf("XRA    L");
-            break;
-        case 0xae:  // A <- A ^ (HL)
-            printf("XRA    M");
-            break;
-        case 0xaf:  // A <- A ^ A
-            printf("XRA    A");
-            break;
-        case 0xb0:  // A <- A | B
-            printf("ORA    B");
-            break;
-        case 0xb1:  // A <- A | C
-            printf("ORA    C");
-            break;
-        case 0xb2:  // A <- A | D
-            printf("ORA    D");
-            break;
-        case 0xb3:  // A <- A | E
-            printf("ORA    E");
-            break;
-        case 0xb4:  // A <- A | H
-            printf("ORA    H");
-            break;
-        case 0xb5:  // A <- A | L
-            printf("ORA    L");
-            break;
-        case 0xb6:  // A <- A | (HL)
-            printf("ORA    M");
-            break;
-        case 0xb7:  // A <- A | A
-            printf("ORA    A");
-            break;
-        case 0xb8:  // A - B
-            printf("CMP    B");
-            break;
-        case 0xb9:  // A - C
-            printf("CMP    C");
-            break;
-        case 0xba:  // A - D
-            printf("CMP    D");
-            break;
-        case 0xbb:  // A - E
-            printf("CMP    E");
-            break;
-        case 0xbc:  // A - H
-            printf("CMP    H");
-            break;
-        case 0xbd:  // A - L
-            printf("CMP    L");
-            break;
-        case 0xbe:  // A - (HL)
-            printf("CMP    M");
-            break;
-        case 0xbf:  // A - A
-            printf("CMP    A");
-            break;
+        case 0x20: printf("RIM");                       break; // TODO: special
+        case 0x21: LXI(&h, &l, opcode);                 break;
+        case 0x22: SHLD(opcode);                        break;
+        case 0x23: INX(&h, &l);                         break;
+        case 0x24: INR(&h);                             break;
+        case 0x25: DCR(&h);                             break;
+        case 0x26: MVI(&h, opcode[1]);                  break;
+        case 0x27: printf("DAA");                       break; // TODO: special
+        case 0x28:                                      break; // NOP
+        case 0x29: DAD(getHL());                        break;
+        case 0x2a: LHLD(opcode);                        break;
+        case 0x2b: DCX(&h, &l);                         break;
+        case 0x2c: INR(&l);                             break;
+        case 0x2d: DCR(&l);                             break;
+        case 0x2e: MVI(&l, opcode[1]);                  break;
+        case 0x2f: CMA();                               break;
+
+        // 0x30 - 0x3f
+        case 0x30: printf("SIM");                       break; // TODO: special
+        case 0x31: LXI_SP(opcode);                      break;
+        case 0x32: STA(opcode);                         break;
+        case 0x33: INX_SP();                            break;
+        case 0x34: INR(&memory[getHL()]);               break;
+        case 0x35: DCR(&memory[getHL()]);               break;
+        case 0x36: MVI(&memory[getHL()], opcode[1]);    break;
+        case 0x37: STC();                               break;
+        case 0x38:                                      break; // NOP
+        case 0x39: DAD(sp);                             break;
+        case 0x3a: LDA(opcode);                         break;
+        case 0x3b: DCX_SP();                            break;
+        case 0x3c: INR(&a);                             break;
+        case 0x3d: DCR(&a);                             break;
+        case 0x3e: MVI(&a, opcode[1]);                  break;
+        case 0x3f: CMC();                               break;
+
+        // 0x40 - 0x4f
+        case 0x40: MOV(&b, &b);                         break;
+        case 0x41: MOV(&b, &c);                         break;
+        case 0x42: MOV(&b, &d);                         break;
+        case 0x43: MOV(&b, &e);                         break;
+        case 0x44: MOV(&b, &h);                         break;
+        case 0x45: MOV(&b, &l);                         break;
+        case 0x46: MOV(&b, &memory[getHL()]);           break;
+        case 0x47: MOV(&b, &a);                         break;
+        case 0x48: MOV(&c, &b);                         break;
+        case 0x49: MOV(&c, &c);                         break;
+        case 0x4a: MOV(&c, &d);                         break;
+        case 0x4b: MOV(&c, &e);                         break;
+        case 0x4c: MOV(&c, &h);                         break;
+        case 0x4d: MOV(&c, &l);                         break;
+        case 0x4e: MOV(&c, &memory[getHL()]);           break;
+        case 0x4f: MOV(&c, &a);                         break;
+
+        // 0x50 - 0x5f
+        case 0x50: MOV(&d, &b);                         break;
+        case 0x51: MOV(&d, &c);                         break;
+        case 0x52: MOV(&d, &d);                         break;
+        case 0x53: MOV(&d, &e);                         break;
+        case 0x54: MOV(&d, &h);                         break;
+        case 0x55: MOV(&d, &l);                         break;
+        case 0x56: MOV(&d, &memory[getHL()]);           break;
+        case 0x57: MOV(&d, &a);                         break;
+        case 0x58: MOV(&e, &b);                         break;
+        case 0x59: MOV(&e, &c);                         break;
+        case 0x5a: MOV(&e, &d);                         break;
+        case 0x5b: MOV(&e, &e);                         break;
+        case 0x5c: MOV(&e, &h);                         break;
+        case 0x5d: MOV(&e, &l);                         break;
+        case 0x5e: MOV(&e, &memory[getHL()]);           break;
+        case 0x5f: MOV(&e, &a);                         break;
+
+        // 0x60 - 0x6f
+        case 0x60: MOV(&h, &b);                         break;
+        case 0x61: MOV(&h, &c);                         break;
+        case 0x62: MOV(&h, &d);                         break;
+        case 0x63: MOV(&h, &e);                         break;
+        case 0x64: MOV(&h, &h);                         break;
+        case 0x65: MOV(&h, &l);                         break;
+        case 0x66: MOV(&h, &memory[getHL()]);           break;
+        case 0x67: MOV(&h, &a);                         break;
+        case 0x68: MOV(&l, &b);                         break;
+        case 0x69: MOV(&l, &c);                         break;
+        case 0x6a: MOV(&l, &d);                         break;
+        case 0x6b: MOV(&l, &e);                         break;
+        case 0x6c: MOV(&l, &h);                         break;
+        case 0x6d: MOV(&l, &l);                         break;
+        case 0x6e: MOV(&l, &memory[getHL()]);           break;
+        case 0x6f: MOV(&l, &a);                         break;
+
+        // 0x70 - 0x7f
+        case 0x70: MOV(&memory[getHL()], &b);           break;
+        case 0x71: MOV(&memory[getHL()], &c);           break;
+        case 0x72: MOV(&memory[getHL()], &d);           break;
+        case 0x73: MOV(&memory[getHL()], &e);           break;
+        case 0x74: MOV(&memory[getHL()], &h);           break;
+        case 0x75: MOV(&memory[getHL()], &l);           break;
+        case 0x76: printf("HLT");                       break; // TODO: HLT
+        case 0x77: MOV(&memory[getHL()], &a);           break;
+        case 0x78: MOV(&a, &b);                         break;
+        case 0x79: MOV(&a, &c);                         break;
+        case 0x7a: MOV(&a, &d);                         break;
+        case 0x7b: MOV(&a, &e);                         break;
+        case 0x7c: MOV(&a, &h);                         break;
+        case 0x7d: MOV(&a, &l);                         break;
+        case 0x7e: MOV(&a, &memory[getHL()]);           break;
+        case 0x7f: MOV(&a, &a);                         break;
+
+        // 0x80 - 0x8f
+        case 0x80: ADD(b, false);                       break; // ADD B
+        case 0x81: ADD(c, false);                       break; // ADD C
+        case 0x82: ADD(d, false);                       break; // ADD D
+        case 0x83: ADD(e, false);                       break; // ADD E
+        case 0x84: ADD(h, false);                       break; // ADD H
+        case 0x85: ADD(l, false);                       break; // ADD L
+        case 0x86: ADD(memory[getHL()], false);         break; // ADD M
+        case 0x87: ADD(a, false);                       break; // ADD A
+        case 0x88: ADD(b, flag.cy);                     break; // ADC B
+        case 0x89: ADD(c, flag.cy);                     break; // ADC C
+        case 0x8a: ADD(d, flag.cy);                     break; // ADC D
+        case 0x8b: ADD(e, flag.cy);                     break; // ADC E
+        case 0x8c: ADD(h, flag.cy);                     break; // ADC H
+        case 0x8d: ADD(l, flag.cy);                     break; // ADC L
+        case 0x8e: ADD(memory[getHL()], flag.cy);       break; // ADC M
+        case 0x8f: ADD(a, flag.cy);                     break; // ADC A
+
+        // 0x90 - 0x9f
+        case 0x90: SUB(b, false);                       break; // SUB B
+        case 0x91: SUB(c, false);                       break; // SUB C
+        case 0x92: SUB(d, false);                       break; // SUB D
+        case 0x93: SUB(e, false);                       break; // SUB E
+        case 0x94: SUB(h, false);                       break; // SUB H
+        case 0x95: SUB(l, false);                       break; // SUB L
+        case 0x96: SUB(memory[getHL()], false);         break; // SUB M
+        case 0x97: SUB(a, false);                       break; // SUB A
+        case 0x98: SUB(b, flag.cy);                     break; // SBC B
+        case 0x99: SUB(c, flag.cy);                     break; // SBC C
+        case 0x9a: SUB(d, flag.cy);                     break; // SBC D
+        case 0x9b: SUB(e, flag.cy);                     break; // SBC E
+        case 0x9c: SUB(h, flag.cy);                     break; // SBC H
+        case 0x9d: SUB(l, flag.cy);                     break; // SBC L
+        case 0x9e: SUB(memory[getHL()], flag.cy);       break; // SBC M
+        case 0x9f: SUB(a, flag.cy);                     break; // SBC A
+
+
+        // 0Xa0 - 0xaf
+        case 0xa0: ANA(b);                              break;
+        case 0xa1: ANA(c);                              break;
+        case 0xa2: ANA(d);                              break;
+        case 0xa3: ANA(e);                              break;
+        case 0xa4: ANA(h);                              break;
+        case 0xa5: ANA(l);                              break;
+        case 0xa6: ANA(memory[getHL()]);                break;
+        case 0xa7: ANA(a);                              break;
+        case 0xa8: XRA(b);                              break;
+        case 0xa9: XRA(c);                              break;
+        case 0xaa: XRA(d);                              break;
+        case 0xab: XRA(e);                              break;
+        case 0xac: XRA(h);                              break;
+        case 0xad: XRA(l);                              break;
+        case 0xae: XRA(memory[getHL()]);                break;
+        case 0xaf: XRA(a);                              break;
+
+        // 0xb0 - 0xbf
+        case 0xb0: ORA(b);                              break;
+        case 0xb1: ORA(c);                              break;
+        case 0xb2: ORA(d);                              break;
+        case 0xb3: ORA(e);                              break;
+        case 0xb4: ORA(h);                              break;
+        case 0xb5: ORA(l);                              break;
+        case 0xb6: ORA(memory[getHL()]);                break;
+        case 0xb7: ORA(a);                              break;
+        case 0xb8: CMP(b);                              break;
+        case 0xb9: CMP(c);                              break;
+        case 0xba: CMP(d);                              break;
+        case 0xbb: CMP(e);                              break;
+        case 0xbc: CMP(h);                              break;
+        case 0xbd: CMP(l);                              break;
+        case 0xbe: CMP(memory[getHL()]);                break;
+        case 0xbf: CMP(a);                              break;
+
+
         case 0xc0:  // if NZ, RET
             printf("RNZ");
             break;

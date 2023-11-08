@@ -225,7 +225,7 @@ int Disassemble8080Op(uint8_t* buffer, int pc) {
         case 0x25:  // H <- H-1
             printf("DCR    H");
             break;
-        case 0x26:  // L <- byte 2
+        case 0x26:  // H <- byte 2
             printf("MVI    H,#$%02x", buffer[pc + 1]);
             opcodeBytes = 2;
             break;
