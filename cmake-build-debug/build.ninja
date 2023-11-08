@@ -67,6 +67,12 @@ build CMakeFiles/Intel_8080.dir/opcodes.cpp.o: CXX_COMPILER__Intel_8080_unscanne
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
   OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
 
+build CMakeFiles/Intel_8080.dir/disassemble.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/disassemble.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/disassemble.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Intel_8080
@@ -75,7 +81,7 @@ build CMakeFiles/Intel_8080.dir/opcodes.cpp.o: CXX_COMPILER__Intel_8080_unscanne
 #############################################
 # Link the executable Intel_8080
 
-build Intel_8080: CXX_EXECUTABLE_LINKER__Intel_8080_Debug CMakeFiles/Intel_8080.dir/main.cpp.o CMakeFiles/Intel_8080.dir/cpu.cpp.o CMakeFiles/Intel_8080.dir/opcodes.cpp.o
+build Intel_8080: CXX_EXECUTABLE_LINKER__Intel_8080_Debug CMakeFiles/Intel_8080.dir/main.cpp.o CMakeFiles/Intel_8080.dir/cpu.cpp.o CMakeFiles/Intel_8080.dir/opcodes.cpp.o CMakeFiles/Intel_8080.dir/disassemble.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
   POST_BUILD = :

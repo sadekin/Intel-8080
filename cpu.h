@@ -35,6 +35,7 @@ class Intel8080 {
 public:
     Intel8080();
     void Emulate8080();
+    static int Disassemble(uint8_t* buffer, int pc);
 
 public:
     uint8_t    a;           // Accumulator Register
