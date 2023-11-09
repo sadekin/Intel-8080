@@ -1,13 +1,37 @@
-#include "cpu.h"
-#include "iostream"
+#include "cpu.hpp"
+
+// this array defines the number of cycles one opcode takes.
+// note that there are some special cases: conditional RETs and CALLs
+// add +6 cycles if the condition is met
+static const std::array<uint8_t, 256> OPCODE_CYCLES = {
+    //  0  1   2   3   4   5   6   7   8  9   A   B   C   D   E  F
+        4, 10, 7,  5,  5,  5,  7,  4,  4, 10, 7,  5,  5,  5,  7, 4,  // 0
+        4, 10, 7,  5,  5,  5,  7,  4,  4, 10, 7,  5,  5,  5,  7, 4,  // 1
+        4, 10, 16, 5,  5,  5,  7,  4,  4, 10, 16, 5,  5,  5,  7, 4,  // 2
+        4, 10, 13, 5,  10, 10, 10, 4,  4, 10, 13, 5,  5,  5,  7, 4,  // 3
+        5, 5,  5,  5,  5,  5,  7,  5,  5, 5,  5,  5,  5,  5,  7, 5,  // 4
+        5, 5,  5,  5,  5,  5,  7,  5,  5, 5,  5,  5,  5,  5,  7, 5,  // 5
+        5, 5,  5,  5,  5,  5,  7,  5,  5, 5,  5,  5,  5,  5,  7, 5,  // 6
+        7, 7,  7,  7,  7,  7,  7,  7,  5, 5,  5,  5,  5,  5,  7, 5,  // 7
+        4, 4,  4,  4,  4,  4,  7,  4,  4, 4,  4,  4,  4,  4,  7, 4,  // 8
+        4, 4,  4,  4,  4,  4,  7,  4,  4, 4,  4,  4,  4,  4,  7, 4,  // 9
+        4, 4,  4,  4,  4,  4,  7,  4,  4, 4,  4,  4,  4,  4,  7, 4,  // A
+        4, 4,  4,  4,  4,  4,  7,  4,  4, 4,  4,  4,  4,  4,  7, 4,  // B
+        5, 10, 10, 10, 11, 11, 7,  11, 5, 10, 10, 10, 11, 17, 7, 11, // C
+        5, 10, 10, 10, 11, 11, 7,  11, 5, 10, 10, 10, 11, 17, 7, 11, // D
+        5, 10, 10, 18, 11, 11, 7,  11, 5, 5,  10, 4,  11, 17, 7, 11, // E
+        5, 10, 10, 4,  11, 11, 7,  11, 5, 5,  10, 4,  11, 17, 7, 11  // F
+};
 
 void Intel8080::Emulate8080() {
-    uint8_t* opcode = &memory[pc];
+    opcode = &memory[pc];
+    Disassemble(memory, pc);
+    pc++;
 
     switch (*opcode) {
         // 0x00 - 0x0f
         case 0x00:                                      break; // NOP
-        case 0x01: LXI(&b, &c, opcode);                 break;
+        case 0x01: LXI(&b, &c);                         break;
         case 0x02: STAX(getBC());                       break;
         case 0x03: INX(&b, &c);                         break;
         case 0x04: INR(&b);                             break;
@@ -25,7 +49,7 @@ void Intel8080::Emulate8080() {
 
         // 0x10 - 0x1f
         case 0x10:                                      break; // NOP
-        case 0x11: LXI(&d, &e, opcode);                 break;
+        case 0x11: LXI(&d, &e);                         break;
         case 0x12: STAX(getDE());                       break;
         case 0x13: INX(&d, &e);                         break;
         case 0x14: INR(&d);                             break;
@@ -43,16 +67,16 @@ void Intel8080::Emulate8080() {
 
         // 0x20 - 0x2f
         case 0x20: printf("RIM");                       break; // TODO: special
-        case 0x21: LXI(&h, &l, opcode);                 break;
-        case 0x22: SHLD(opcode);                        break;
+        case 0x21: LXI(&h, &l);                         break;
+        case 0x22: SHLD();                              break;
         case 0x23: INX(&h, &l);                         break;
         case 0x24: INR(&h);                             break;
         case 0x25: DCR(&h);                             break;
         case 0x26: MVI(&h, opcode[1]);                  break;
-        case 0x27: printf("DAA");                       break; // TODO: special
+        case 0x27: DAA();                               break; // TODO: CHECK CHECK CHECK
         case 0x28:                                      break; // NOP
         case 0x29: DAD(getHL());                        break;
-        case 0x2a: LHLD(opcode);                        break;
+        case 0x2a: LHLD();                              break;
         case 0x2b: DCX(&h, &l);                         break;
         case 0x2c: INR(&l);                             break;
         case 0x2d: DCR(&l);                             break;
@@ -61,8 +85,8 @@ void Intel8080::Emulate8080() {
 
         // 0x30 - 0x3f
         case 0x30: printf("SIM");                       break; // TODO: special
-        case 0x31: LXI_SP(opcode);                      break;
-        case 0x32: STA(opcode);                         break;
+        case 0x31: LXI_SP();                            break;
+        case 0x32: STA();                               break;
         case 0x33: INX_SP();                            break;
         case 0x34: INR(&memory[getHL()]);               break;
         case 0x35: DCR(&memory[getHL()]);               break;
@@ -70,7 +94,7 @@ void Intel8080::Emulate8080() {
         case 0x37: STC();                               break;
         case 0x38:                                      break; // NOP
         case 0x39: DAD(sp);                             break;
-        case 0x3a: LDA(opcode);                         break;
+        case 0x3a: LDA();                               break;
         case 0x3b: DCX_SP();                            break;
         case 0x3c: INR(&a);                             break;
         case 0x3d: DCR(&a);                             break;
@@ -223,79 +247,79 @@ void Intel8080::Emulate8080() {
         case 0xbf: CMP(a);                              break;
 
         // 0xc0 - 0xcf
-        case 0xc0: RET(flag.z == 0);                    break; // TODO: RNZ check
+        case 0xc0: RET_COND(flag.z == 0);               break; // RNZ = RET if not zero (Z = 0)
         case 0xc1: POP(&b, &c);                         break; // POP B
-        case 0xc2: JMP(opcode, flag.z == 0);            break; // JNZ a16 = JMP a16 if not zero (Z = 0)
-        case 0xc3: JMP(opcode);                         break; // JMP a16
-        case 0xc4: CALL(opcode, flag.z == 0);           break; // TODO: CNZ check
+        case 0xc2: JMP_COND(flag.z == 0);               break; // JNZ a16 = JMP_COND a16 if not zero (Z = 0)
+        case 0xc3: JMP();                               break; // JMP_COND a16
+        case 0xc4: CALL_COND(flag.z == 0);              break; // TODO: CNZ check
         case 0xc5: PUSH(&b, &c);                        break; // PUSH B
         case 0xc6: ADD(opcode[1], false); pc++;         break; // ADI d8
         case 0xc7: RST(0);                              break; // RST 0
-        case 0xc8: RET(flag.z == 1);                    break; // RZ = RET if zero (Z = 1)
+        case 0xc8: RET_COND(flag.z == 1);               break; // RZ = RET if zero (Z = 1)
         case 0xc9: RET();                               break; // RET
-        case 0xca: JMP(opcode, flag.z == 1);            break; // JZ a16 = JMP a16 if zero (Z = 1)
+        case 0xca: JMP_COND(flag.z == 1);               break; // JZ a16 = JMP_COND a16 if zero (Z = 1)
         case 0xcb:                                      break; // NOP (should not be used)
-        case 0xcc: CALL(opcode, flag.z == 1);           break; // CZ a16 = CALL a16 if zero (Z = 1)
-        case 0xcd: CALL(opcode);                        break; // CALL a16
+        case 0xcc: CALL_COND(flag.z == 1);              break; // CZ a16 = CALL_COND a16 if zero (Z = 1)
+        case 0xcd: CALL();                              break; // CALL_COND a16
         case 0xce: ADD(opcode[1], flag.cy); pc++;       break; // ACI d8
         case 0xcf: RST(1);                              break; // RST 1
 
         // 0xd0 - 0xdf
-        case 0xd0: RET(flag.cy == 0);                   break; // RNC
+        case 0xd0: RET_COND(flag.cy == 0);              break; // RNC = RET if no carry (CY = 0)
         case 0xd1: POP(&d, &e);                         break; // POP D
-        case 0xd2: JMP(opcode, flag.cy == 0);           break; // JNC a16 = JMP a16 if no carry (CY = 0)
+        case 0xd2: JMP_COND(flag.cy == 0);              break; // JNC a16 = JMP_COND a16 if no carry (CY = 0)
         case 0xd3:                                      break; // TODO: printf("OUT    #$%02x", buffer[pc+1]); opcodeBytes = 2;
-        case 0xd4: CALL(opcode, flag.cy == 0);          break; // CNC a16 = CALL a16 if no carry (CY = 0)
+        case 0xd4: CALL_COND(flag.cy == 0);             break; // CNC a16 = CALL_COND a16 if no carry (CY = 0)
         case 0xd5: PUSH(&d, &e);                        break; // PUSH D
         case 0xd6: SUB(opcode[1], false); pc++;         break; // SUI d8
         case 0xd7: RST(2);                              break; // RST 2
-        case 0xd8: RET(flag.cy == 1);                   break; // RET if carry (CY = 1)
+        case 0xd8: RET_COND(flag.cy == 1);              break; // RET if carry (CY = 1)
         case 0xd9:                                      break; // NOP (should not be used)
-        case 0xda: JMP(opcode, flag.cy == 1);           break; // JC a16 = JMP a16 if carry (CY = 1)
+        case 0xda: JMP_COND(flag.cy == 1);              break; // JC a16 = JMP_COND a16 if carry (CY = 1)
         case 0xdb:                                      break; // TODO: printf("IN    #$%02x", buffer[pc+1]); opcodeBytes = 2;
-        case 0xdc: CALL(opcode, flag.cy == 1);          break; // CC a16 = CALL a16 if carry (CY = 1)
+        case 0xdc: CALL_COND(flag.cy == 1);             break; // CC a16 = CALL_COND a16 if carry (CY = 1)
         case 0xdd:                                      break; // NOP (should not be used)
         case 0xde: SUB(opcode[1], flag.cy); pc++;       break; // SBI d8
         case 0xdf: RST(3);                              break; // RST 3
 
         // 0xe0 - 0xef
-        case 0xe0: RET(flag.p == 0);                    break; // RPO = RET if parity odd (P = 0)
+        case 0xe0: RET_COND(flag.p == 0);               break; // RPO = RET if parity odd (P = 0)
         case 0xe1: POP(&h, &l);                         break; // POP H
-        case 0xe2: JMP(opcode, flag.p == 0);            break; // JPO a16 = JMP a16 if parity odd (P = 0)
+        case 0xe2: JMP_COND(flag.p == 0);               break; // JPO a16 = JMP_COND a16 if parity odd (P = 0)
         case 0xe3: XTHL();                              break; // XTHL
-        case 0xe4: CALL(opcode, flag.p == 0);           break; // CPO a16 = CALL a16 if parity odd (P = 0)
+        case 0xe4: CALL_COND(flag.p == 0);              break; // CPO a16 = CALL_COND a16 if parity odd (P = 0)
         case 0xe5: PUSH(&h, &l);                        break; // PUSH H
         case 0xe6: ANI(opcode[1]); pc++;                break; // ANI d8
         case 0xe7: RST(4);                              break; // RST 4
-        case 0xe8: RET(flag.p == 1);                    break; // RPE = RET if parity even (P = 1)
+        case 0xe8: RET_COND(flag.p == 1);               break; // RPE = RET if parity even (P = 1)
         case 0xe9: PCHL();                              break; // PCHL
-        case 0xea: JMP(opcode, flag.p == 1);            break; // JPE a16 = JMP a16 if parity even (P = 1)
+        case 0xea: JMP_COND(flag.p == 1);               break; // JPE a16 = JMP_COND a16 if parity even (P = 1)
         case 0xeb: XCHG();                              break; // XCHG
-        case 0xec: CALL(opcode, flag.p == 1);           break; // CPE a16 = CALL a16 if parity even (P = 1)
+        case 0xec: CALL_COND(flag.p == 1);              break; // CPE a16 = CALL_COND a16 if parity even (P = 1)
         case 0xed:                                      break; // NOP (should not be used)
         case 0xee: XRA(opcode[1]); pc++;                break; // XRI d8
         case 0xef: RST(5);                              break; // RST 5
 
         // 0xf0 - 0xff
-        case 0xf0: RET(flag.s == 0);                    break; // RP = RET if plus (S = 0)
+        case 0xf0: RET_COND(flag.s == 0);               break; // RP = RET if plus (S = 0)
         case 0xf1: POP_PSW();                           break; // POP PSW
-        case 0xf2: JMP(opcode, flag.s == 0);            break; // JP a16 = JMP a16 if plus (S = 0)
+        case 0xf2: JMP_COND(flag.s == 0);               break; // JP a16 = JMP_COND a16 if plus (S = 0)
         case 0xf3: printf("DI");                        break; // TODO: special
-        case 0xf4: CALL(opcode, flag.s == 0);           break; // CP a16 = CALL a16 if plus (S = 0)
+        case 0xf4: CALL_COND(flag.s == 0);              break; // CP a16 = CALL_COND a16 if plus (S = 0)
         case 0xf5: PUSH_PSW();                          break; // PUSH PSW
         case 0xf6: ORA(opcode[1]); pc++;                break; // ORI d8
         case 0xf7: RST(6);                              break; // RST 6
-        case 0xf8: RET(flag.s == 1);                    break; // RM = RET if minus (S = 1)
+        case 0xf8: RET_COND(flag.s == 1);               break; // RM = RET if minus (S = 1)
         case 0xf9: SPHL();                              break; // SPHL
-        case 0xfa: JMP(opcode, flag.s == 1);            break; // JM a16 = JMP a16 if minus (S = 1)
+        case 0xfa: JMP_COND(flag.s == 1);               break; // JM a16 = JMP_COND a16 if minus (S = 1)
         case 0xfb: printf("EI");                        break; // TODO: special
-        case 0xfc: CALL(opcode, flag.s == 1);           break; // CM a16 = CALL a16 if minus (S = 1)
+        case 0xfc: CALL_COND(flag.s == 1);              break; // CM a16 = CALL_COND a16 if minus (S = 1)
         case 0xfd:                                      break; // NOP (should not be used)
         case 0xfe: CMP(opcode[1]); pc++;                break; // CPI d8
         case 0xff: RST(7);                              break; // RST 7
     }
 
-    pc++;
+    cycles += OPCODE_CYCLES[*opcode];
 }
 
 

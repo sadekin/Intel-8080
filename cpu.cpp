@@ -1,17 +1,55 @@
-#include "cpu.h"
+#include "cpu.hpp"
 
-Intel8080::Intel8080() : a(0), b(0), c(0), d(0), e(0), h(0), l(0), sp(0), pc(0), memory(nullptr), int_enable(0) {}
+Intel8080::Intel8080() : a(0), b(0), c(0), d(0), e(0), h(0), l(0), sp(0), pc(0), intEnable(0) {
+    // Allocate memory for the emulator's memory buffer
+    memory = new uint8_t[0x10000]; // 64KB in bytes
+}
+
+Intel8080::~Intel8080() {
+    // Release the allocated memory
+    delete[] memory;
+}
+
+bool Intel8080::Load(const std::string& filePath, uint16_t loadAddress) {
+    // Open the file for binary reading
+    std::ifstream file(filePath, std::ios::binary);
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << filePath << std::endl;
+        return false;
+    }
+
+    // Seek to the end of the file to determine its size
+    file.seekg(0, std::ios::end);
+    std::streampos fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // Check if there is enough memory to load the file
+    if (loadAddress + fileSize > 0xFFFF) {
+        std::cerr << "File size exceeds available memory space." << std::endl;
+        return false;
+    }
+
+    // Read the file contents into memory starting from the specified loadAddress
+    file.read(reinterpret_cast<char*>(&memory[loadAddress]), fileSize);
+
+    if (!file) {
+        std::cerr << "Failed to read file: " << filePath << std::endl;
+        return false;
+    }
+
+    return true;
+}
 
 /* Utility functions for setting flags. */
-bool Intel8080::parity(uint8_t value) {
-    value ^= value >> 4; // XOR the high 4 bits with the low 4 bits
-    value ^= value >> 2; // XOR the high 2 bits of the result with the low 2 bits
-    value ^= value >> 1; // XOR the high 1 bit of the result with the low 1 bit
 
-    // At this point, the lowest bit of 'value' contains the parity of the original byte.
-    // If the lowest bit is 0 (meaning an even number of '1' bits), the parity is even (return true).
-    // If the lowest bit is 1 (meaning an odd number of '1' bits), the parity is odd (return false).
-    return !(value & 1);
+// Returns true if there are an even number of 1-bits in value and false otherwise
+// See Approach 2 in editorial: https://leetcode.com/problems/number-of-1-bits/editorial/
+bool Intel8080::parity(uint8_t value) {
+    uint8_t oneBitsCount;
+    for (oneBitsCount = 0; value != 0; oneBitsCount++)
+        value &= (value - 1);
+    return oneBitsCount % 2 == 0;
 }
 
 void Intel8080::setZSP(uint8_t result) {
@@ -21,7 +59,7 @@ void Intel8080::setZSP(uint8_t result) {
 }
 
 /* Utility function for data transfer. */
-uint16_t Intel8080::getAddr(const uint8_t* opcode) { return (opcode[2] << 8) | opcode[1]; }
+uint16_t Intel8080::getAddr() const { return (opcode[2] << 8) | opcode[1]; }
 
 /* Opcode Functions */
 
@@ -41,41 +79,41 @@ void Intel8080::MVI(uint8_t *dst, uint8_t byte) {
 
 // LXI rp, data 16 (Load resister pair immediate): (rh) <- (byte 3), (rl) <- (byte 2).
 // Note: Stored from LSB to MSB since the 8080 is little endian.
-void Intel8080::LXI(uint8_t* rh, uint8_t* rl, const uint8_t* opcode) {
+void Intel8080::LXI(uint8_t *rh, uint8_t *rl) {
     *rh = opcode[2];    // high-order register
     *rl = opcode[1];    // low-order register
     pc += 2;
 }
 
 // LXI SP: SP.hi <- byte 3, SP.lo <- byte 2
-void Intel8080::LXI_SP(uint8_t* opcode) {
-    sp = getAddr(opcode);
+void Intel8080::LXI_SP() {
+    sp = getAddr();
     pc += 2;
 }
 
 // LDA addr (Load Accumulator direct): (A) <- ((byte 3)(byte 2))
-void Intel8080::LDA(const uint8_t* opcode) {
-    a = memory[getAddr(opcode)];
+void Intel8080::LDA() {
+    a = memory[getAddr()];
     pc += 2;
 }
 
 // STA addr (Store Accumulator direct): ((byte 3)(byte 2)) <- (A)
-void Intel8080::STA(uint8_t* opcode) {
-    memory[getAddr(opcode)] = a;
+void Intel8080::STA() {
+    memory[getAddr()] = a;
     pc += 2;
 }
 
 // LHLD addr (Load H and L direct): (L) <- ((byte 3)(byte 2)), H <- ((byte 3)(byte 2) + 1);
-void Intel8080::LHLD(uint8_t* opcode) {
-    uint16_t addr = getAddr(opcode);
+void Intel8080::LHLD() {
+    uint16_t addr = getAddr();
     l = memory[addr];
     h = memory[addr + 1];
     pc += 2;
 }
 
 // SHLD addr (Store H and L direct): ((byte 3)(byte 2)) <- L, ((byte 3)(byte 2) + 1) <- H;
-void Intel8080::SHLD(uint8_t* opcode) {
-    uint16_t addr = getAddr(opcode);
+void Intel8080::SHLD() {
+    uint16_t addr = getAddr();
     memory[addr]     = l;
     memory[addr + 1] = h;
     pc += 2;
@@ -139,7 +177,8 @@ void Intel8080::DCR(uint8_t* target) {
 
 // INX rp (Increment register pair); Flags affected: NONE
 void Intel8080::INX(uint8_t* rh, uint8_t* rl) {
-    if (++(*rl) == 0) (*rh)++; // overflow
+    if (++(*rl) == 0) // overflow
+        (*rh)++;
 }
 
 // INX SP (Increment stack pointer); Flags affected: NONE
@@ -147,7 +186,8 @@ void Intel8080::INX_SP() { sp++; }
 
 // DCX rp (Decrement register pair); Flags affected: NONE
 void Intel8080::DCX(uint8_t* rh, uint8_t* rl) {
-    if (--(*rl) == 0xFF) (*rh)--; // underflow
+    if (--(*rl) == 0xFF) // underflow
+        (*rh)--;
 }
 // DXC SP (Decrement stack pointer); Flags affected: NONE.
 void Intel8080::DCX_SP() { sp--; }
@@ -162,7 +202,20 @@ void Intel8080::DCX_SP() { sp--; }
 // 2. If the value of the most significant 4 bits of the accumulator is now greater than 9,
 // or if the CY flag is set, 6 is added to the most significant 4 bits of the accumulator.
 void Intel8080::DAA() {
-    // TODO
+    // TODO: check
+    bool carry = flag.cy;
+    uint8_t correction = 0;
+
+    uint8_t lsb = a & 0x0F, msb = a >> 4;
+
+    if (lsb > 4 || flag.ac) correction += 0x06;
+
+    if (msb > 9 || flag.cy || (msb >= 9 && lsb >= 9)) {
+        correction += 0x60;
+        carry = 1;
+    }
+    ADD(correction, false);
+    flag.cy = carry;
 }
 
 // DAD rp (Add register pair to H and L); Flags affected: Only CY.
@@ -260,11 +313,11 @@ void Intel8080::STC() { flag.cy = 1; }
 // Condition flags are not affected by any instruction in this group.
 
 // JMP addr (Jump)
-void Intel8080::JMP(uint8_t* opcode) { pc = getAddr(opcode); }
+void Intel8080::JMP() { pc = getAddr(); }
 
 // Jcondition addr (Conditional jump)
-void Intel8080::JMP(uint8_t *opcode, bool cond) {
-    if (cond) JMP(opcode);
+void Intel8080::JMP_COND(bool cond) {
+    if (cond) JMP();
     else pc += 2;
 }
 
@@ -278,18 +331,16 @@ void Intel8080::CALL(uint16_t addr) {
 }
 
 // CALL addr (Call)
-void Intel8080::CALL(uint8_t* opcode) { CALL(getAddr(opcode)); }
+void Intel8080::CALL() { CALL(getAddr()); }
 
 // Ccondition addr (Condition call)
-void Intel8080::CALL(uint16_t addr, bool cond) {
-    if (cond) CALL(addr);
-    else pc += 2;
-}
-
-// Ccondition addr (Condition call)
-void Intel8080::CALL(uint8_t* opcode, bool cond) {
-    if (cond) CALL(getAddr(opcode));
-    else pc += 2;
+void Intel8080::CALL_COND(bool cond) {
+    if (cond) {
+        CALL(getAddr());
+        cycles += 6;
+    } else {
+        pc += 2;
+    }
 }
 
 // RET (Return [from a subroutine])
@@ -299,7 +350,12 @@ void Intel8080::RET() {
 }
 
 // Rcondition (Conditional return)
-void Intel8080::RET(bool cond) { if (cond) RET(); }
+void Intel8080::RET_COND(bool cond) {
+    if (cond) {
+        RET();
+        cycles += 6;
+    }
+}
 
 // RST n (Restart)
 void Intel8080::RST(uint16_t n) { CALL(8 * n); }

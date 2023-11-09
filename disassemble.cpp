@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "cpu.hpp"
 #include <iostream>
 
 /*  Below is a list of some common Intel 8080 assembly language mnemonics along with their meanings.
@@ -12,7 +12,7 @@
 //  ADI - Add Immediate (without carry)
 //  ANA - AND Accumulator (logical AND)
 //  ANI - AND Immediate with Accumulator
-// CALL - Call Subroutine
+// CALL_COND - Call Subroutine
 //   CC - Call on Carry
 //   CM - Call if Minus
 //  CMA - Complement Accumulator
@@ -37,7 +37,7 @@
 //  INX - INcrement register pair eXchange
 //   JC - Jump on Carry
 //   JM - Jump on Minus
-//  JMP - Jump Unconditionally
+//  JMP_COND - Jump Unconditionally
 //  JNC - Jump on No Carry
 //  JNZ - Jump on Not Zero
 //   JP - Jump on Positive
@@ -99,6 +99,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
     int opcodeBytes = 1;
 
     printf("%04x  ", pc);
+//    printf("pc: %04x  instruction: %04x   ", pc, buffer[pc]);
 
     switch (buffer[pc]) {
         // 0x00 - 0x0f
@@ -321,7 +322,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0xc0: printf("RNZ");                                                                       break;
         case 0xc1: printf("POP   B");                                                                   break;
         case 0xc2: printf("JNZ   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
-        case 0xc3: printf("JMP   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xc3: printf("JMP_COND   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
         case 0xc4: printf("CNZ   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
         case 0xc5: printf("PUSH  B");                                                                   break;
         case 0xc6: printf("ADI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
@@ -331,7 +332,7 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0xca: printf("JZ    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
         case 0xcb: printf("NOP");                                                                       break;
         case 0xcc: printf("CZ    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
-        case 0xcd: printf("CALL  $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xcd: printf("CALL_COND  $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
         case 0xce: printf("ACI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
         case 0xcf: printf("RST   1");                                                                   break;
 
@@ -391,6 +392,15 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
     }
 
     printf("\n");
+//    printf("\t\t\t\t");
+//    printf("%c", flag.z ? 'z' : '.');
+//    printf("%c", flag.s ? 's' : '.');
+//    printf("%c", flag.p ? 'p' : '.');
+//    printf("%c", flag.cy ? 'c' : '.');
+//    printf("%c", flag.ac ? 'a' : '.');
+//    printf("\t");
+//    printf("A $%02x B $%02x C $%02x D $%02x E $%02x H $%02x L $%02x SP %04x\n", a, b, c,
+//           d, e, h, l, sp);
 
     return opcodeBytes;
 }

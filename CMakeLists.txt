@@ -4,7 +4,7 @@ project(Intel_8080)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(Intel_8080 main.cpp
-        cpu.h
+        cpu.hpp
         cpu.cpp
         opcodes.cpp
         disassemble.cpp)
