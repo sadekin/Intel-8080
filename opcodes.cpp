@@ -526,3 +526,9 @@ void Intel8080::XTHL() {
     write16RP(2, temp16);
     cycles -= 18;
 }
+
+// Unimplemented instruction
+void Intel8080::XXX() {
+    printf("UNRECOGNIZED INSTRUCTION @ %04Xh: %02X\n", pc - 1, opcode);
+    exit(0);
+}

@@ -38,13 +38,13 @@ void Platform::Run() {
             // Reset elapsed time for next frame
             elapsedTime = sf::Time::Zero;
 
-            // Execute CPU cycles for half a screen update
-            cpu->Execute(16666);
+            // execute CPU cycles for half a screen update
+            cpu->execute(16666);
             // Generate half-screen interrupt
             cpu->interrupt(1); // RST 1
 
-            // Execute CPU cycles for the remaining half
-            cpu->Execute(16666);
+            // execute CPU cycles for the remaining half
+            cpu->execute(16666);
             // Generate full-screen interrupt
             cpu->interrupt(2); // RST 2
 

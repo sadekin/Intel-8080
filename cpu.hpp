@@ -10,18 +10,19 @@
 
 class Intel8080 {
 public:
-    Intel8080() : INTE(), pc(), sp(), reg8(), memory(nullptr), ioPorts(nullptr) {
-        memory = new Memory();
-        ioPorts = new IOPorts();
-    }
+//    Intel8080() : INTE(), pc(), sp(), reg8(), memory(nullptr), ioPorts(nullptr) {
+//        memory = new Memory();
+//        ioPorts = new IOPorts();
+//
+//    }
+    Intel8080();
 
-    int     Execute(int numCycles);
+    int     execute(int numCycles);
 
-    uint8_t read(uint16_t addr);
-    void    write(uint16_t addr, uint8_t data);
-
-    uint8_t inport(uint8_t port);
-    void    outport(uint8_t port, uint8_t data);
+    uint8_t read(uint16_t addr) const;
+    void    write(uint16_t addr, uint8_t data) const;
+    uint8_t inport(uint8_t port) const;
+    void    outport(uint8_t port, uint8_t data) const;
 
     void    interrupt(uint8_t n);
 
@@ -58,64 +59,31 @@ public:
     void    SetFlag(FLAGS8080 f, bool v);
     void    SetZSP(uint8_t value);
 
+    typedef void (Intel8080::*Operation)();
+    std::vector<Operation> lookup;
+
 private:
-    void ACI();
-    void ADC();
-    void ADD();
-    void ADI();
-    void ANA();
-    void ANI();
-    void CALL();
-    void Cccc();
-    void CMA();
-    void CMC();
-    void CMP();
-    void CPI();
-    void DAA();
-    void DAD();
-    void DCR();
-    void DCX();
-    void DI();
-    void EI();
-    void HLT();
-    void IN();
-    void INR();
-    void INX();
-    void JMP();
-    void Jccc();
-    void LDA();
-    void LDAX();
-    void LHLD();
-    void LXI();
-    void MOV();
-    void MVI();
-    void NOP();
-    void ORA();
-    void ORI();
-    void OUT();
-    void PCHL();
-    void POP();
-    void PUSH();
-    void RAL();
-    void RAR();
-    void RET();
-    void Rccc();
-    void RLC();
-    void RRC();
-    void RST();
-    void SBB();
-    void SBI();
-    void SHLD();
-    void SPHL();
-    void STA();
-    void STAX();
-    void STC();
-    void SUB();
-    void SUI();
-    void XCHG();
-    void XRA();
-    void XRI();
-    void XTHL();
+    void  ACI();        void   IN();        void  RAR();
+    void  ADC();        void  INR();        void  RET();
+    void  ADD();        void  INX();        void Rccc();
+    void  ADI();        void  JMP();        void  RLC();
+    void  ANA();        void Jccc();        void  RRC();
+    void  ANI();        void  LDA();        void  RST();
+    void CALL();        void LDAX();        void  SBB();
+    void Cccc();        void LHLD();        void  SBI();
+    void  CMA();        void  LXI();        void SHLD();
+    void  CMC();        void  MOV();        void SPHL();
+    void  CMP();        void  MVI();        void  STA();
+    void  CPI();        void  NOP();        void STAX();
+    void  DAA();        void  ORA();        void  STC();
+    void  DAD();        void  ORI();        void  SUB();
+    void  DCR();        void  OUT();        void  SUI();
+    void  DCX();        void PCHL();        void XCHG();
+    void   DI();        void  POP();        void  XRA();
+    void   EI();        void PUSH();        void  XRI();
+    void  HLT();        void  RAL();        void XTHL();
+
+    void  XXX();
 
 private:
     uint8_t     readReg8(uint8_t r);
