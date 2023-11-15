@@ -52,24 +52,63 @@ build cmake_object_order_depends_target_Intel_8080: phony || CMakeFiles/Intel_80
 build CMakeFiles/Intel_8080.dir/main.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/main.cpp || cmake_object_order_depends_target_Intel_8080
   DEP_FILE = CMakeFiles/Intel_8080.dir/main.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
   OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
 
 build CMakeFiles/Intel_8080.dir/cpu.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/cpu.cpp || cmake_object_order_depends_target_Intel_8080
   DEP_FILE = CMakeFiles/Intel_8080.dir/cpu.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
   OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
 
 build CMakeFiles/Intel_8080.dir/opcodes.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/opcodes.cpp || cmake_object_order_depends_target_Intel_8080
   DEP_FILE = CMakeFiles/Intel_8080.dir/opcodes.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
   OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
 
 build CMakeFiles/Intel_8080.dir/disassemble.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/disassemble.cpp || cmake_object_order_depends_target_Intel_8080
   DEP_FILE = CMakeFiles/Intel_8080.dir/disassemble.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+
+build CMakeFiles/Intel_8080.dir/memory.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/memory.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/memory.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+
+build CMakeFiles/Intel_8080.dir/io.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/io.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/io.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+
+build CMakeFiles/Intel_8080.dir/display.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/display.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/display.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+
+build CMakeFiles/Intel_8080.dir/platform.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/platform.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/platform.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+
+build CMakeFiles/Intel_8080.dir/utils.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/utils.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/utils.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
   OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
 
@@ -81,8 +120,9 @@ build CMakeFiles/Intel_8080.dir/disassemble.cpp.o: CXX_COMPILER__Intel_8080_unsc
 #############################################
 # Link the executable Intel_8080
 
-build Intel_8080: CXX_EXECUTABLE_LINKER__Intel_8080_Debug CMakeFiles/Intel_8080.dir/main.cpp.o CMakeFiles/Intel_8080.dir/cpu.cpp.o CMakeFiles/Intel_8080.dir/opcodes.cpp.o CMakeFiles/Intel_8080.dir/disassemble.cpp.o
+build Intel_8080: CXX_EXECUTABLE_LINKER__Intel_8080_Debug CMakeFiles/Intel_8080.dir/main.cpp.o CMakeFiles/Intel_8080.dir/cpu.cpp.o CMakeFiles/Intel_8080.dir/opcodes.cpp.o CMakeFiles/Intel_8080.dir/disassemble.cpp.o CMakeFiles/Intel_8080.dir/memory.cpp.o CMakeFiles/Intel_8080.dir/io.cpp.o CMakeFiles/Intel_8080.dir/display.cpp.o CMakeFiles/Intel_8080.dir/platform.cpp.o CMakeFiles/Intel_8080.dir/utils.cpp.o | /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib /opt/homebrew/lib/libsfml-audio.2.6.0.dylib /opt/homebrew/lib/libsfml-network.2.6.0.dylib /opt/homebrew/lib/libsfml-window.2.6.0.dylib /opt/homebrew/lib/libsfml-system.2.6.0.dylib
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk
+  LINK_LIBRARIES = -Wl,-rpath,/opt/homebrew/lib  /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib  /opt/homebrew/lib/libsfml-audio.2.6.0.dylib  /opt/homebrew/lib/libsfml-network.2.6.0.dylib  /opt/homebrew/lib/libsfml-window.2.6.0.dylib  /opt/homebrew/lib/libsfml-system.2.6.0.dylib
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -132,14 +172,14 @@ build all: phony Intel_8080
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCXXInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCommonLanguageInclude.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeGenericSystem.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeInitializeConfigs.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeLanguageInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeSystemSpecificInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeSystemSpecificInitialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/GNU.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Darwin-Initialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Darwin.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/UnixPaths.cmake /Users/sadekin/CLionProjects/Intel-8080/CMakeLists.txt CMakeCache.txt CMakeFiles/3.26.4/CMakeCCompiler.cmake CMakeFiles/3.26.4/CMakeCXXCompiler.cmake CMakeFiles/3.26.4/CMakeSystem.cmake
+build build.ninja: RERUN_CMAKE | /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCXXInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCommonLanguageInclude.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeGenericSystem.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeInitializeConfigs.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeLanguageInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeSystemSpecificInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeSystemSpecificInitialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/GNU.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Darwin-Initialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Darwin.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/UnixPaths.cmake /Users/sadekin/CLionProjects/Intel-8080/CMakeLists.txt /opt/homebrew/lib/cmake/SFML/SFMLConfig.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfigDependencies.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfigVersion.cmake /opt/homebrew/lib/cmake/SFML/SFMLSharedTargets-release.cmake /opt/homebrew/lib/cmake/SFML/SFMLSharedTargets.cmake CMakeCache.txt CMakeFiles/3.26.4/CMakeCCompiler.cmake CMakeFiles/3.26.4/CMakeCXXCompiler.cmake CMakeFiles/3.26.4/CMakeSystem.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCXXInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCommonLanguageInclude.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeGenericSystem.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeInitializeConfigs.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeLanguageInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeSystemSpecificInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeSystemSpecificInitialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/GNU.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Darwin-Initialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Darwin.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/UnixPaths.cmake /Users/sadekin/CLionProjects/Intel-8080/CMakeLists.txt CMakeCache.txt CMakeFiles/3.26.4/CMakeCCompiler.cmake CMakeFiles/3.26.4/CMakeCXXCompiler.cmake CMakeFiles/3.26.4/CMakeSystem.cmake: phony
+build /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCXXInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeCommonLanguageInclude.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeGenericSystem.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeInitializeConfigs.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeLanguageInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeSystemSpecificInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/CMakeSystemSpecificInitialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Compiler/GNU.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Apple-Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Darwin-Initialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/Darwin.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.26/Modules/Platform/UnixPaths.cmake /Users/sadekin/CLionProjects/Intel-8080/CMakeLists.txt /opt/homebrew/lib/cmake/SFML/SFMLConfig.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfigDependencies.cmake /opt/homebrew/lib/cmake/SFML/SFMLConfigVersion.cmake /opt/homebrew/lib/cmake/SFML/SFMLSharedTargets-release.cmake /opt/homebrew/lib/cmake/SFML/SFMLSharedTargets.cmake CMakeCache.txt CMakeFiles/3.26.4/CMakeCCompiler.cmake CMakeFiles/3.26.4/CMakeCXXCompiler.cmake CMakeFiles/3.26.4/CMakeSystem.cmake: phony
 
 
 #############################################

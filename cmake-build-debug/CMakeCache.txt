@@ -219,6 +219,12 @@ Intel_8080_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 Intel_8080_SOURCE_DIR:STATIC=/Users/sadekin/CLionProjects/Intel-8080
 
+//The directory containing a CMake configuration file for SFML.
+SFML_DIR:PATH=/opt/homebrew/lib/cmake/SFML
+
+//Path to a file.
+SFML_DOC_DIR:PATH=/opt/homebrew/share/doc/SFML
+
 
 ########################
 # INTERNAL cache entries

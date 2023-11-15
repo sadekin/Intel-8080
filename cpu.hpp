@@ -5,102 +5,130 @@
 #include <fstream>
 #include <string>
 
+#include "memory.hpp"
+#include "io.hpp"
+
 class Intel8080 {
 public:
-    Intel8080();
-    ~Intel8080();
+    Intel8080() : INTE(), pc(), sp(), reg8(), memory(nullptr), ioPorts(nullptr) {
+        memory = new Memory();
+        ioPorts = new IOPorts();
+    }
 
-    bool Load(const std::string& filePath, uint16_t loadAddress);
-    void Emulate8080();
-    int  Disassemble(uint8_t* buffer, int pc);
+    int     Execute(int numCycles);
 
+    uint8_t read(uint16_t addr);
+    void    write(uint16_t addr, uint8_t data);
+
+    uint8_t inport(uint8_t port);
+    void    outport(uint8_t port, uint8_t data);
+
+    void    interrupt(uint8_t n);
+
+    int     disassemble(uint8_t opcode, uint16_t pc);
 
 public:
-    uint8_t    a;           // Accumulator Register
-    uint8_t    b;           // B Register
-    uint8_t    c;           // C Register
-    uint8_t    d;           // D Register
-    uint8_t    e;           // E Register
-    uint8_t    h;           // High-order register H (used with L for indirect addressing)
-    uint8_t    l;           // Low-order register L (used with H for indirect addressing)
+    std::array<uint8_t, 9> reg8;
+    uint8_t INTE;
+    uint16_t sp, pc;
 
-    uint16_t   sp;          // Stack Pointer
-    uint16_t   pc;          // Program Counter
-    uint8_t*   opcode;      // Current opcode
+    int cycles;
 
-    uint8_t*   memory;      // Pointer to a memory buffer representing RAM
+    enum Register8 : uint8_t { B, C, D, E, H, L, M, A, FLAGS };
+    enum FLAGS8080 : uint8_t { S = 7, Z = 6, AC = 4, P = 2, CY = 0 };
 
-    bool       intEnable;   // Interrupt enable/disable flag (enable = true, disable = false)
-    uint8_t    intPending;
+    Memory*     memory;
+    IOPorts*    ioPorts;
 
-    uint64_t   cycles;
+    // Convenience variables
+    uint8_t     opcode;
+    uint8_t     reg;
+    uint16_t    reg2;
+    uint8_t     temp8;
+    uint16_t    temp16;
+    uint32_t    temp32;
 
-    [[nodiscard]] uint16_t getBC() const { return (b << 8) | c; }
-    [[nodiscard]] uint16_t getDE() const { return (d << 8) | e; }
-    [[nodiscard]] uint16_t getHL() const { return (h << 8) | l; }
+    uint16_t reg16_BC() const   { return (((uint16_t) reg8[B]) << 8) | (uint16_t) reg8[C]; }
+    uint16_t reg16_DE() const   { return (((uint16_t) reg8[D]) << 8) | (uint16_t) reg8[E]; }
+    uint16_t reg16_HL() const   { return (((uint16_t) reg8[H]) << 8) | (uint16_t) reg8[L]; }
+    uint16_t reg16_PSW() const  { return (((uint16_t) reg8[A]) << 8) | (uint16_t) reg8[FLAGS]; }
 
-    struct Flags {
-        uint8_t   z : 1;    // Zero
-        uint8_t   s : 1;    // Sign
-        uint8_t   p : 1;    // Parity
-        uint8_t  cy : 1;    // Carry
-        uint8_t  ac : 1;    // Auxiliary Carry
-        uint8_t pad : 3;    // Unused
-    } flag;
-
+    uint8_t GetFlag(FLAGS8080 f);
+    bool    TestCond(uint8_t code);
+    void    SetFlag(FLAGS8080 f, bool v);
+    void    SetZSP(uint8_t value);
 
 private:
-    void ADD(uint8_t addend, bool cy = false);
-    void ANA(uint8_t operand);
-    void ANI(uint8_t operand);
-    void CALL(uint16_t addr);
+    void ACI();
+    void ADC();
+    void ADD();
+    void ADI();
+    void ANA();
+    void ANI();
     void CALL();
-    void CALL_COND(bool cond);
+    void Cccc();
     void CMA();
     void CMC();
-    void CMP(uint8_t value);
+    void CMP();
+    void CPI();
     void DAA();
-    void DAD(uint16_t rp);
-    void DCR(uint8_t* target);
-    void DCX(uint8_t* rh, uint8_t* rl);
-    void DCX_SP();
-    void INR(uint8_t* target);
-    void INX(uint8_t* rh, uint8_t* rl);
-    void INX_SP();
+    void DAD();
+    void DCR();
+    void DCX();
+    void DI();
+    void EI();
+    void HLT();
+    void IN();
+    void INR();
+    void INX();
     void JMP();
-    void JMP_COND(bool cond);
+    void Jccc();
     void LDA();
-    void LDAX(uint16_t rp);
+    void LDAX();
     void LHLD();
-    void LXI(uint8_t *rh, uint8_t *rl);
-    void LXI_SP();
-    void MOV(uint8_t* dst, uint8_t* src);
-    void MVI(uint8_t* dst, uint8_t byte);
-    void ORA(uint8_t operand);
+    void LXI();
+    void MOV();
+    void MVI();
+    void NOP();
+    void ORA();
+    void ORI();
+    void OUT();
     void PCHL();
-    void POP(uint8_t* rh, uint8_t* rl);
-    void POP_PSW();
-    void PUSH(uint8_t* rh, uint8_t* rl);
-    void PUSH_PSW();
+    void POP();
+    void PUSH();
     void RAL();
     void RAR();
     void RET();
-    void RET_COND(bool cond);
+    void Rccc();
     void RLC();
     void RRC();
-    void RST(uint16_t n);
+    void RST();
+    void SBB();
+    void SBI();
     void SHLD();
     void SPHL();
     void STA();
-    void STAX(uint16_t rp);
+    void STAX();
     void STC();
-    void SUB(uint8_t subtrahend, bool cy = false);
+    void SUB();
+    void SUI();
     void XCHG();
-    void XRA(uint8_t operand);
+    void XRA();
+    void XRI();
     void XTHL();
 
 private:
-    static bool     parity(uint8_t value);
-    void            setZSP(uint8_t result);
-    uint16_t        getAddr() const;
+    uint8_t     readReg8(uint8_t r);
+    void        writeReg8(uint8_t r, uint8_t value);
+    void        push(uint16_t value);
+    uint16_t    pop();
+    uint16_t    readRP(uint8_t rp);
+    void        writeRP(uint8_t rp, uint8_t lb, uint8_t hb);
+    void        write16RP(uint8_t rp, uint16_t value);
+    uint16_t    readRP_PUSHPOP(uint8_t rp);
+    void        write16RP_PUSHPOP(uint8_t rp, uint16_t value);
+
+    bool        parity(uint8_t value);
+    bool        carry(uint8_t a, uint8_t b, uint8_t result, uint8_t m);
+    bool        borrow(uint8_t a, uint8_t b, uint8_t result, uint8_t m);
 };

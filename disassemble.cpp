@@ -12,7 +12,7 @@
 //  ADI - Add Immediate (without carry)
 //  ANA - AND Accumulator (logical AND)
 //  ANI - AND Immediate with Accumulator
-// CALL_COND - Call Subroutine
+// CALL - Call Subroutine
 //   CC - Call on Carry
 //   CM - Call if Minus
 //  CMA - Complement Accumulator
@@ -37,7 +37,7 @@
 //  INX - INcrement register pair eXchange
 //   JC - Jump on Carry
 //   JM - Jump on Minus
-//  JMP_COND - Jump Unconditionally
+//  JMP - Jump Unconditionally
 //  JNC - Jump on No Carry
 //  JNZ - Jump on Not Zero
 //   JP - Jump on Positive
@@ -46,8 +46,8 @@
 //   JZ - Jump on Zero
 //  LDA - LoaD Accumulator Directly from Memory
 // LDAX - LoaD Accumulator Indirectly (from BC or DE)
-// LHLD - Load HL pair Direct from memory
-//  LXI - Load register pair Immediate
+// LHLD - load HL pair Direct from memory
+//  LXI - load register pair Immediate
 //  MOV - MOVe data between registers or between register and memory
 //  MVI - MoVe Immediate data to register or memory
 //  NOP - No OPeration
@@ -90,26 +90,23 @@
  * reading and writing one byte at a time.
  *
  * *buffer is a valid pointer to 8080 assembly code
- * pc is the current offset into the code
  *
  * returns the number of bytes of the opcode
 */
 
-int Intel8080::Disassemble(uint8_t* buffer, int pc) {
-    int opcodeBytes = 1;
-
+int Intel8080::disassemble(uint8_t opcode, uint16_t pc) {
+    int opBytes = 1;
     printf("%04x  ", pc);
-//    printf("pc: %04x  instruction: %04x   ", pc, buffer[pc]);
 
-    switch (buffer[pc]) {
+    switch (opcode) {
         // 0x00 - 0x0f
         case 0x00: printf("NOP");                                                                       break;
-        case 0x01: printf("LXI   B,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;       break;
+        case 0x01: printf("LXI   B,#$%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;               break;
         case 0x02: printf("STAX  B");                                                                   break;
         case 0x03: printf("INX   B");                                                                   break;
         case 0x04: printf("INR   B");                                                                   break;
         case 0x05: printf("DCR   B");                                                                   break;
-        case 0x06: printf("MVI   B,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
+        case 0x06: printf("MVI   B,#$%02x", read(pc + 1)); opBytes = 2;                                 break;
         case 0x07: printf("RLC");                                                                       break;
         case 0x08: printf("NOP");                                                                       break;
         case 0x09: printf("DAD   B");                                                                   break;
@@ -117,17 +114,17 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x0b: printf("DCX   B");                                                                   break;
         case 0x0c: printf("INR   C");                                                                   break;
         case 0x0d: printf("DCR   C");                                                                   break;
-        case 0x0e: printf("MVI   C,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
+        case 0x0e: printf("MVI   C,#$%02x", read(pc + 1)); opBytes = 2;                                 break;
         case 0x0f: printf("RRC");                                                                       break;
 
         // 0x10 - 0x1f
         case 0x10: printf("NOP");                                                                       break;
-        case 0x11: printf("LXI   D,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;       break;
+        case 0x11: printf("LXI   D,#$%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;               break;
         case 0x12: printf("STAX  D");                                                                   break;
         case 0x13: printf("INX   D");                                                                   break;
         case 0x14: printf("INR   D");                                                                   break;
         case 0x15: printf("DCR   D");                                                                   break;
-        case 0x16: printf("MVI   D,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
+        case 0x16: printf("MVI   D,#$%02x", read(pc + 1)); opBytes = 2;                                 break;
         case 0x17: printf("RAL");                                                                       break;
         case 0x18: printf("NOP");                                                                       break;
         case 0x19: printf("DAD   D");                                                                   break;
@@ -135,43 +132,43 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         case 0x1b: printf("DCX   D");                                                                   break;
         case 0x1c: printf("INR   E");                                                                   break;
         case 0x1d: printf("DCR   E");                                                                   break;
-        case 0x1e: printf("MVI   E,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
+        case 0x1e: printf("MVI   E,#$%02x", read(pc + 1)); opBytes = 2;                                 break;
         case 0x1f: printf("RAR");                                                                       break;
 
         // 0x20 - 0x2f
         case 0x20: printf("RIM");                                                                       break;
-        case 0x21: printf("LXI   H,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;       break;
-        case 0x22: printf("SHLD  0x%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;         break;
+        case 0x21: printf("LXI   H,#$%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;               break;
+        case 0x22: printf("SHLD  0x%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                 break;
         case 0x23: printf("INX   H");                                                                   break;
         case 0x24: printf("INR   H");                                                                   break;
         case 0x25: printf("DCR   H");                                                                   break;
-        case 0x26: printf("MVI   H,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
+        case 0x26: printf("MVI   H,#$%02x", read(pc + 1)); opBytes = 2;                                 break;
         case 0x27: printf("DAA");                                                                       break;
         case 0x28: printf("NOP");                                                                       break;
         case 0x29: printf("DAD   H");                                                                   break;
-        case 0x2a: printf("LHLD  0x%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;         break;
+        case 0x2a: printf("LHLD  0x%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                 break;
         case 0x2b: printf("DCX   H");                                                                   break;
         case 0x2c: printf("INR   L");                                                                   break;
         case 0x2d: printf("DCR   L");                                                                   break;
-        case 0x2e: printf("MVI   L,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
+        case 0x2e: printf("MVI   L,#$%02x", read(pc + 1)); opBytes = 2;                                 break;
         case 0x2f: printf("CMA");                                                                       break;
 
         // 0x30 - 0x3f
         case 0x30: printf("SIM");                                                                       break;
-        case 0x31: printf("LXI   SP,#$%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;      break;
-        case 0x32: printf("STA   $%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;          break;
+        case 0x31: printf("LXI   SP,#$%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;              break;
+        case 0x32: printf("STA   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0x33: printf("INX   SP");                                                                  break;
         case 0x34: printf("INR   M");                                                                   break;
         case 0x35: printf("DCR   M");                                                                   break;
-        case 0x36: printf("MVI   M,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
+        case 0x36: printf("MVI   M,#$%02x", read(pc + 1)); opBytes = 2;                                 break;
         case 0x37: printf("STC");                                                                       break;
         case 0x38: printf("NOP");                                                                       break;
         case 0x39: printf("DAD   SP");                                                                  break;
-        case 0x3a: printf("LDA   #$%02x%02x", buffer[pc + 2], buffer[pc + 1]); opcodeBytes = 3;         break;
+        case 0x3a: printf("LDA   #$%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                 break;
         case 0x3b: printf("DCX   SP");                                                                  break;
         case 0x3c: printf("INR   A");                                                                   break;
         case 0x3d: printf("DCR   A");                                                                   break;
-        case 0x3e: printf("MVI   A,#$%02x", buffer[pc + 1]); opcodeBytes = 2;                           break;
+        case 0x3e: printf("MVI   A,#$%02x", read(pc + 1)); opBytes = 2;                                 break;
         case 0x3f: printf("CMC");                                                                       break;
 
         // 0x40 - 0x4f
@@ -321,86 +318,86 @@ int Intel8080::Disassemble(uint8_t* buffer, int pc) {
         // 0xc0 - 0xcf
         case 0xc0: printf("RNZ");                                                                       break;
         case 0xc1: printf("POP   B");                                                                   break;
-        case 0xc2: printf("JNZ   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
-        case 0xc3: printf("JMP_COND   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
-        case 0xc4: printf("CNZ   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xc2: printf("JNZ   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
+        case 0xc3: printf("JMP   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
+        case 0xc4: printf("CNZ   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xc5: printf("PUSH  B");                                                                   break;
-        case 0xc6: printf("ADI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
+        case 0xc6: printf("ADI   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
         case 0xc7: printf("RST   0");                                                                   break;
         case 0xc8: printf("RZ");                                                                        break;
         case 0xc9: printf("RET");                                                                       break;
-        case 0xca: printf("JZ    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xca: printf("JZ    $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xcb: printf("NOP");                                                                       break;
-        case 0xcc: printf("CZ    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
-        case 0xcd: printf("CALL_COND  $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
-        case 0xce: printf("ACI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
+        case 0xcc: printf("CZ    $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
+        case 0xcd: printf("CALL  $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
+        case 0xce: printf("ACI   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
         case 0xcf: printf("RST   1");                                                                   break;
 
         // 0xd0 - 0xdf
         case 0xd0: printf("RNC");                                                                       break;
         case 0xd1: printf("POP   D");                                                                   break;
-        case 0xd2: printf("JNC   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
-        case 0xd3: printf("OUT   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
-        case 0xd4: printf("CNC   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xd2: printf("JNC   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
+        case 0xd3: printf("OUT   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
+        case 0xd4: printf("CNC   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xd5: printf("PUSH  D");                                                                   break;
-        case 0xd6: printf("SUI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
+        case 0xd6: printf("SUI   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
         case 0xd7: printf("RST   2");                                                                   break;
         case 0xd8: printf("RC");                                                                        break;
         case 0xd9: printf("NOP");                                                                       break;
-        case 0xda: printf("JC    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
-        case 0xdb: printf("IN    #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
-        case 0xdc: printf("CC    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xda: printf("JC    $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
+        case 0xdb: printf("IN    #$%02x", read(pc + 1)); opBytes = 2;                                   break;
+        case 0xdc: printf("CC    $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xdd: printf("NOP");                                                                       break;
-        case 0xde: printf("SBI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
+        case 0xde: printf("SBI   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
         case 0xdf: printf("RST   3");                                                                   break;
 
         // 0xe0 - 0xef
         case 0xe0: printf("RPO");                                                                       break;
         case 0xe1: printf("POP   H");                                                                   break;
-        case 0xe2: printf("JPO   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xe2: printf("JPO   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xe3: printf("XTHL");                                                                      break;
-        case 0xe4: printf("CPO   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xe4: printf("CPO   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xe5: printf("PUSH  H");                                                                   break;
-        case 0xe6: printf("ANI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
+        case 0xe6: printf("ANI   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
         case 0xe7: printf("RST   4");                                                                   break;
         case 0xe8: printf("RPE");                                                                       break;
         case 0xe9: printf("PCHL");                                                                      break;
-        case 0xea: printf("JPE   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xea: printf("JPE   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xeb: printf("XCHG");                                                                      break;
-        case 0xec: printf("CPE   $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xec: printf("CPE   $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xed: printf("NOP");                                                                       break;
-        case 0xee: printf("XRI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
+        case 0xee: printf("XRI   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
         case 0xef: printf("RST   5");                                                                   break;
 
         // 0xf0 - 0xff
         case 0xf0: printf("RP");                                                                        break;
         case 0xf1: printf("POP   PSW");                                                                 break;
-        case 0xf2: printf("JP    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xf2: printf("JP    $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xf3: printf("DI");                                                                        break;
-        case 0xf4: printf("CP    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xf4: printf("CP    $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xf5: printf("PUSH  PSW");                                                                 break;
-        case 0xf6: printf("ORI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
+        case 0xf6: printf("ORI   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
         case 0xf7: printf("RST   6");                                                                   break;
         case 0xf8: printf("RM");                                                                        break;
         case 0xf9: printf("SPHL");                                                                      break;
-        case 0xfa: printf("JM    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xfa: printf("JM    $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xfb: printf("EI");                                                                        break;
-        case 0xfc: printf("CM    $%02x%02x", buffer[pc+2], buffer[pc+1]); opcodeBytes = 3;              break;
+        case 0xfc: printf("CM    $%02x%02x", read(pc + 2), read(pc + 1)); opBytes = 3;                  break;
         case 0xfd: printf("NOP");                                                                       break;
-        case 0xfe: printf("CPI   #$%02x", buffer[pc+1]); opcodeBytes = 2;                               break;
+        case 0xfe: printf("CPI   #$%02x", read(pc + 1)); opBytes = 2;                                   break;
         case 0xff: printf("RST   7");                                                                   break;
     }
 
-    printf("\n");
 //    printf("\t\t\t\t");
-//    printf("%c", flag.z ? 'z' : '.');
-//    printf("%c", flag.s ? 's' : '.');
-//    printf("%c", flag.p ? 'p' : '.');
-//    printf("%c", flag.cy ? 'c' : '.');
-//    printf("%c", flag.ac ? 'a' : '.');
+//    printf("a = %d, ", reg8[A]);
 //    printf("\t");
-//    printf("A $%02x B $%02x C $%02x D $%02x E $%02x H $%02x L $%02x SP %04x\n", a, b, c,
-//           d, e, h, l, sp);
+//    printf("Z = %d, ", GetFlag(Z));
+//    printf("S = %d, ", GetFlag(S));
+//    printf("P = %d, ", GetFlag(P));
+//    printf("CY = %d, ", GetFlag(CY));
+//    printf("AC = %d", GetFlag(AC));
+//    pc += opBytes;
 
-    return opcodeBytes;
+    printf("\n");
+    return opBytes;
 }

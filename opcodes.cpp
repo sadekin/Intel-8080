@@ -1,326 +1,528 @@
 #include "cpu.hpp"
 
-// this array defines the number of cycles one opcode takes.
-// note that there are some special cases: conditional RETs and CALLs
-// add +6 cycles if the condition is met
-static const std::array<uint8_t, 256> OPCODE_CYCLES = {
-    //  0  1   2   3   4   5   6   7   8  9   A   B   C   D   E  F
-        4, 10, 7,  5,  5,  5,  7,  4,  4, 10, 7,  5,  5,  5,  7, 4,  // 0
-        4, 10, 7,  5,  5,  5,  7,  4,  4, 10, 7,  5,  5,  5,  7, 4,  // 1
-        4, 10, 16, 5,  5,  5,  7,  4,  4, 10, 16, 5,  5,  5,  7, 4,  // 2
-        4, 10, 13, 5,  10, 10, 10, 4,  4, 10, 13, 5,  5,  5,  7, 4,  // 3
-        5, 5,  5,  5,  5,  5,  7,  5,  5, 5,  5,  5,  5,  5,  7, 5,  // 4
-        5, 5,  5,  5,  5,  5,  7,  5,  5, 5,  5,  5,  5,  5,  7, 5,  // 5
-        5, 5,  5,  5,  5,  5,  7,  5,  5, 5,  5,  5,  5,  5,  7, 5,  // 6
-        7, 7,  7,  7,  7,  7,  7,  7,  5, 5,  5,  5,  5,  5,  7, 5,  // 7
-        4, 4,  4,  4,  4,  4,  7,  4,  4, 4,  4,  4,  4,  4,  7, 4,  // 8
-        4, 4,  4,  4,  4,  4,  7,  4,  4, 4,  4,  4,  4,  4,  7, 4,  // 9
-        4, 4,  4,  4,  4,  4,  7,  4,  4, 4,  4,  4,  4,  4,  7, 4,  // A
-        4, 4,  4,  4,  4,  4,  7,  4,  4, 4,  4,  4,  4,  4,  7, 4,  // B
-        5, 10, 10, 10, 11, 11, 7,  11, 5, 10, 10, 10, 11, 17, 7, 11, // C
-        5, 10, 10, 10, 11, 11, 7,  11, 5, 10, 10, 10, 11, 17, 7, 11, // D
-        5, 10, 10, 18, 11, 11, 7,  11, 5, 5,  10, 4,  11, 17, 7, 11, // E
-        5, 10, 10, 4,  11, 11, 7,  11, 5, 5,  10, 4,  11, 17, 7, 11  // F
-};
+// Add immediate to accumulator with carry
+void Intel8080::ACI() {
+    temp8 = read(pc++);
+    temp16 = (uint16_t) reg8[A] + (uint16_t) temp8 + (uint16_t) GetFlag(CY);
+    SetFlag(AC, carry(reg8[A], temp8 + GetFlag(CY), temp16, 0x08));
+    SetFlag(CY, temp16 & 0xFF00);
+    SetZSP(static_cast<uint8_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    cycles -= 7;
+}
 
-void Intel8080::Emulate8080() {
-    opcode = &memory[pc];
-    Disassemble(memory, pc);
-    pc++;
+// Add register to accumulator with carry
+void Intel8080::ADC() {
+    reg = opcode & 7;
+    temp8 = readReg8(reg);
+    temp16 = (uint16_t) reg8[A] + (uint16_t) temp8 + (uint16_t) GetFlag(CY);
+    SetFlag(AC, carry(reg8[A], temp8 + GetFlag(CY), temp16, 0x08));
+    SetFlag(CY, temp16 & 0xFF00);
+    SetZSP(static_cast<uint8_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    if (reg == M)
+        cycles -= 7;
+    else
+        cycles -= 4;
+}
 
-    switch (*opcode) {
-        // 0x00 - 0x0f
-        case 0x00:                                      break; // NOP
-        case 0x01: LXI(&b, &c);                         break;
-        case 0x02: STAX(getBC());                       break;
-        case 0x03: INX(&b, &c);                         break;
-        case 0x04: INR(&b);                             break;
-        case 0x05: DCR(&b);                             break;
-        case 0x06: MVI(&b, opcode[1]);                  break;
-        case 0x07: RLC();                               break;
-        case 0x08:                                      break; // NOP
-        case 0x09: DAD(getBC());                        break;
-        case 0x0a: LDAX(getBC());                       break;
-        case 0x0b: DCX(&b, &c);                         break;
-        case 0x0c: INR(&c);                             break;
-        case 0x0d: DCR(&c);                             break;
-        case 0x0e: MVI(&c, opcode[1]);                  break;
-        case 0x0f: RRC();                               break;
+// Add register/memory to accumulator
+void Intel8080::ADD() {
+    reg = opcode & 7;
+    temp8 = readReg8(reg);
+    temp16 = (uint16_t) reg8[A] + (uint16_t) temp8;
+    SetFlag(CY, temp16 & 0xFF00);
+    SetFlag(AC, carry(reg8[A], temp8, temp16, 0x08));
+    SetZSP(static_cast<uint16_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    if (reg == M)
+        cycles -= 7;
+    else
+        cycles -= 4;
+}
 
-        // 0x10 - 0x1f
-        case 0x10:                                      break; // NOP
-        case 0x11: LXI(&d, &e);                         break;
-        case 0x12: STAX(getDE());                       break;
-        case 0x13: INX(&d, &e);                         break;
-        case 0x14: INR(&d);                             break;
-        case 0x15: DCR(&d);                             break;
-        case 0x16: MVI(&d, opcode[1]);                  break;
-        case 0x17: RAL();                               break;
-        case 0x18:                                      break; // NOP
-        case 0x19: DAD(getDE());                        break;
-        case 0x1a: LDAX(getDE());                       break;
-        case 0x1b: DCX(&d, &e);                         break;
-        case 0x1c: INR(&e);                             break;
-        case 0x1d: DCR(&e);                             break;
-        case 0x1e: MVI(&e, opcode[1]);                  break;
-        case 0x1f: RAR();                               break;
+// Add immediate to accumulator
+void Intel8080::ADI() {
+    temp8 = read(pc++);
+    temp16 = (uint16_t) reg8[A] + (uint16_t) temp8;
+    SetFlag(CY, temp16 & 0xFF00);
+    SetFlag(AC, carry(reg8[A], temp8, temp16, 0x08));
+    SetZSP(static_cast<uint16_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    cycles -= 7;
+}
 
-        // 0x20 - 0x2f
-        case 0x20: printf("RIM");                       break; // TODO: special
-        case 0x21: LXI(&h, &l);                         break;
-        case 0x22: SHLD();                              break;
-        case 0x23: INX(&h, &l);                         break;
-        case 0x24: INR(&h);                             break;
-        case 0x25: DCR(&h);                             break;
-        case 0x26: MVI(&h, opcode[1]);                  break;
-        case 0x27: DAA();                               break; // TODO: CHECK CHECK CHECK
-        case 0x28:                                      break; // NOP
-        case 0x29: DAD(getHL());                        break;
-        case 0x2a: LHLD();                              break;
-        case 0x2b: DCX(&h, &l);                         break;
-        case 0x2c: INR(&l);                             break;
-        case 0x2d: DCR(&l);                             break;
-        case 0x2e: MVI(&l, opcode[1]);                  break;
-        case 0x2f: CMA();                               break;
+// Logical AND with accumulator
+void Intel8080::ANA() {
+    reg = opcode & 7;
+    temp8 = readReg8(reg);
+    SetFlag(AC, (reg8[A] | temp8) & 0x80);
+    SetFlag(CY, false);
+    reg8[A] &= temp8;
+    SetZSP(reg8[A]);
+    if (reg == M)
+        cycles -= 7;
+    else
+        cycles -= 4;
+}
 
-        // 0x30 - 0x3f
-        case 0x30: printf("SIM");                       break; // TODO: special
-        case 0x31: LXI_SP();                            break;
-        case 0x32: STA();                               break;
-        case 0x33: INX_SP();                            break;
-        case 0x34: INR(&memory[getHL()]);               break;
-        case 0x35: DCR(&memory[getHL()]);               break;
-        case 0x36: MVI(&memory[getHL()], opcode[1]);    break;
-        case 0x37: STC();                               break;
-        case 0x38:                                      break; // NOP
-        case 0x39: DAD(sp);                             break;
-        case 0x3a: LDA();                               break;
-        case 0x3b: DCX_SP();                            break;
-        case 0x3c: INR(&a);                             break;
-        case 0x3d: DCR(&a);                             break;
-        case 0x3e: MVI(&a, opcode[1]);                  break;
-        case 0x3f: CMC();                               break;
+// Logical AND immediate with accumulator
+void Intel8080::ANI() {
+    temp8 = read(pc++);
+    SetFlag(AC, (reg8[A] | temp8) & 0x80);
+    SetFlag(CY, false);
+    reg8[A] &= temp8;
+    SetZSP(reg8[A]);
+    cycles -= 4;
+}
 
-        // 0x40 - 0x4f
-        case 0x40: MOV(&b, &b);                         break;
-        case 0x41: MOV(&b, &c);                         break;
-        case 0x42: MOV(&b, &d);                         break;
-        case 0x43: MOV(&b, &e);                         break;
-        case 0x44: MOV(&b, &h);                         break;
-        case 0x45: MOV(&b, &l);                         break;
-        case 0x46: MOV(&b, &memory[getHL()]);           break;
-        case 0x47: MOV(&b, &a);                         break;
-        case 0x48: MOV(&c, &b);                         break;
-        case 0x49: MOV(&c, &c);                         break;
-        case 0x4a: MOV(&c, &d);                         break;
-        case 0x4b: MOV(&c, &e);                         break;
-        case 0x4c: MOV(&c, &h);                         break;
-        case 0x4d: MOV(&c, &l);                         break;
-        case 0x4e: MOV(&c, &memory[getHL()]);           break;
-        case 0x4f: MOV(&c, &a);                         break;
+// Call
+void Intel8080::CALL() {
+    temp16 = (uint16_t) read(pc) | (((uint16_t) read(pc + 1)) << 8);
+    push(pc + 2);
+    pc = temp16;
+    cycles -= 17;
+}
 
-        // 0x50 - 0x5f
-        case 0x50: MOV(&d, &b);                         break;
-        case 0x51: MOV(&d, &c);                         break;
-        case 0x52: MOV(&d, &d);                         break;
-        case 0x53: MOV(&d, &e);                         break;
-        case 0x54: MOV(&d, &h);                         break;
-        case 0x55: MOV(&d, &l);                         break;
-        case 0x56: MOV(&d, &memory[getHL()]);           break;
-        case 0x57: MOV(&d, &a);                         break;
-        case 0x58: MOV(&e, &b);                         break;
-        case 0x59: MOV(&e, &c);                         break;
-        case 0x5a: MOV(&e, &d);                         break;
-        case 0x5b: MOV(&e, &e);                         break;
-        case 0x5c: MOV(&e, &h);                         break;
-        case 0x5d: MOV(&e, &l);                         break;
-        case 0x5e: MOV(&e, &memory[getHL()]);           break;
-        case 0x5f: MOV(&e, &a);                         break;
-
-        // 0x60 - 0x6f
-        case 0x60: MOV(&h, &b);                         break;
-        case 0x61: MOV(&h, &c);                         break;
-        case 0x62: MOV(&h, &d);                         break;
-        case 0x63: MOV(&h, &e);                         break;
-        case 0x64: MOV(&h, &h);                         break;
-        case 0x65: MOV(&h, &l);                         break;
-        case 0x66: MOV(&h, &memory[getHL()]);           break;
-        case 0x67: MOV(&h, &a);                         break;
-        case 0x68: MOV(&l, &b);                         break;
-        case 0x69: MOV(&l, &c);                         break;
-        case 0x6a: MOV(&l, &d);                         break;
-        case 0x6b: MOV(&l, &e);                         break;
-        case 0x6c: MOV(&l, &h);                         break;
-        case 0x6d: MOV(&l, &l);                         break;
-        case 0x6e: MOV(&l, &memory[getHL()]);           break;
-        case 0x6f: MOV(&l, &a);                         break;
-
-        // 0x70 - 0x7f
-        case 0x70: MOV(&memory[getHL()], &b);           break;
-        case 0x71: MOV(&memory[getHL()], &c);           break;
-        case 0x72: MOV(&memory[getHL()], &d);           break;
-        case 0x73: MOV(&memory[getHL()], &e);           break;
-        case 0x74: MOV(&memory[getHL()], &h);           break;
-        case 0x75: MOV(&memory[getHL()], &l);           break;
-        case 0x76: printf("HLT");                       break; // TODO: HLT
-        case 0x77: MOV(&memory[getHL()], &a);           break;
-        case 0x78: MOV(&a, &b);                         break;
-        case 0x79: MOV(&a, &c);                         break;
-        case 0x7a: MOV(&a, &d);                         break;
-        case 0x7b: MOV(&a, &e);                         break;
-        case 0x7c: MOV(&a, &h);                         break;
-        case 0x7d: MOV(&a, &l);                         break;
-        case 0x7e: MOV(&a, &memory[getHL()]);           break;
-        case 0x7f: MOV(&a, &a);                         break;
-
-        // 0x80 - 0x8f
-        case 0x80: ADD(b, false);                       break; // ADD B
-        case 0x81: ADD(c, false);                       break; // ADD C
-        case 0x82: ADD(d, false);                       break; // ADD D
-        case 0x83: ADD(e, false);                       break; // ADD E
-        case 0x84: ADD(h, false);                       break; // ADD H
-        case 0x85: ADD(l, false);                       break; // ADD L
-        case 0x86: ADD(memory[getHL()], false);         break; // ADD M
-        case 0x87: ADD(a, false);                       break; // ADD A
-        case 0x88: ADD(b, flag.cy);                     break; // ADC B
-        case 0x89: ADD(c, flag.cy);                     break; // ADC C
-        case 0x8a: ADD(d, flag.cy);                     break; // ADC D
-        case 0x8b: ADD(e, flag.cy);                     break; // ADC E
-        case 0x8c: ADD(h, flag.cy);                     break; // ADC H
-        case 0x8d: ADD(l, flag.cy);                     break; // ADC L
-        case 0x8e: ADD(memory[getHL()], flag.cy);       break; // ADC M
-        case 0x8f: ADD(a, flag.cy);                     break; // ADC A
-
-        // 0x90 - 0x9f
-        case 0x90: SUB(b, false);                       break; // SUB B
-        case 0x91: SUB(c, false);                       break; // SUB C
-        case 0x92: SUB(d, false);                       break; // SUB D
-        case 0x93: SUB(e, false);                       break; // SUB E
-        case 0x94: SUB(h, false);                       break; // SUB H
-        case 0x95: SUB(l, false);                       break; // SUB L
-        case 0x96: SUB(memory[getHL()], false);         break; // SUB M
-        case 0x97: SUB(a, false);                       break; // SUB A
-        case 0x98: SUB(b, flag.cy);                     break; // SBC B
-        case 0x99: SUB(c, flag.cy);                     break; // SBC C
-        case 0x9a: SUB(d, flag.cy);                     break; // SBC D
-        case 0x9b: SUB(e, flag.cy);                     break; // SBC E
-        case 0x9c: SUB(h, flag.cy);                     break; // SBC H
-        case 0x9d: SUB(l, flag.cy);                     break; // SBC L
-        case 0x9e: SUB(memory[getHL()], flag.cy);       break; // SBC M
-        case 0x9f: SUB(a, flag.cy);                     break; // SBC A
-
-
-        // 0Xa0 - 0xaf
-        case 0xa0: ANA(b);                              break;
-        case 0xa1: ANA(c);                              break;
-        case 0xa2: ANA(d);                              break;
-        case 0xa3: ANA(e);                              break;
-        case 0xa4: ANA(h);                              break;
-        case 0xa5: ANA(l);                              break;
-        case 0xa6: ANA(memory[getHL()]);                break;
-        case 0xa7: ANA(a);                              break;
-        case 0xa8: XRA(b);                              break;
-        case 0xa9: XRA(c);                              break;
-        case 0xaa: XRA(d);                              break;
-        case 0xab: XRA(e);                              break;
-        case 0xac: XRA(h);                              break;
-        case 0xad: XRA(l);                              break;
-        case 0xae: XRA(memory[getHL()]);                break;
-        case 0xaf: XRA(a);                              break;
-
-        // 0xb0 - 0xbf
-        case 0xb0: ORA(b);                              break;
-        case 0xb1: ORA(c);                              break;
-        case 0xb2: ORA(d);                              break;
-        case 0xb3: ORA(e);                              break;
-        case 0xb4: ORA(h);                              break;
-        case 0xb5: ORA(l);                              break;
-        case 0xb6: ORA(memory[getHL()]);                break;
-        case 0xb7: ORA(a);                              break;
-        case 0xb8: CMP(b);                              break;
-        case 0xb9: CMP(c);                              break;
-        case 0xba: CMP(d);                              break;
-        case 0xbb: CMP(e);                              break;
-        case 0xbc: CMP(h);                              break;
-        case 0xbd: CMP(l);                              break;
-        case 0xbe: CMP(memory[getHL()]);                break;
-        case 0xbf: CMP(a);                              break;
-
-        // 0xc0 - 0xcf
-        case 0xc0: RET_COND(flag.z == 0);               break; // RNZ = RET if not zero (Z = 0)
-        case 0xc1: POP(&b, &c);                         break; // POP B
-        case 0xc2: JMP_COND(flag.z == 0);               break; // JNZ a16 = JMP_COND a16 if not zero (Z = 0)
-        case 0xc3: JMP();                               break; // JMP_COND a16
-        case 0xc4: CALL_COND(flag.z == 0);              break; // TODO: CNZ check
-        case 0xc5: PUSH(&b, &c);                        break; // PUSH B
-        case 0xc6: ADD(opcode[1], false); pc++;         break; // ADI d8
-        case 0xc7: RST(0);                              break; // RST 0
-        case 0xc8: RET_COND(flag.z == 1);               break; // RZ = RET if zero (Z = 1)
-        case 0xc9: RET();                               break; // RET
-        case 0xca: JMP_COND(flag.z == 1);               break; // JZ a16 = JMP_COND a16 if zero (Z = 1)
-        case 0xcb:                                      break; // NOP (should not be used)
-        case 0xcc: CALL_COND(flag.z == 1);              break; // CZ a16 = CALL_COND a16 if zero (Z = 1)
-        case 0xcd: CALL();                              break; // CALL_COND a16
-        case 0xce: ADD(opcode[1], flag.cy); pc++;       break; // ACI d8
-        case 0xcf: RST(1);                              break; // RST 1
-
-        // 0xd0 - 0xdf
-        case 0xd0: RET_COND(flag.cy == 0);              break; // RNC = RET if no carry (CY = 0)
-        case 0xd1: POP(&d, &e);                         break; // POP D
-        case 0xd2: JMP_COND(flag.cy == 0);              break; // JNC a16 = JMP_COND a16 if no carry (CY = 0)
-        case 0xd3:                                      break; // TODO: printf("OUT    #$%02x", buffer[pc+1]); opcodeBytes = 2;
-        case 0xd4: CALL_COND(flag.cy == 0);             break; // CNC a16 = CALL_COND a16 if no carry (CY = 0)
-        case 0xd5: PUSH(&d, &e);                        break; // PUSH D
-        case 0xd6: SUB(opcode[1], false); pc++;         break; // SUI d8
-        case 0xd7: RST(2);                              break; // RST 2
-        case 0xd8: RET_COND(flag.cy == 1);              break; // RET if carry (CY = 1)
-        case 0xd9:                                      break; // NOP (should not be used)
-        case 0xda: JMP_COND(flag.cy == 1);              break; // JC a16 = JMP_COND a16 if carry (CY = 1)
-        case 0xdb:                                      break; // TODO: printf("IN    #$%02x", buffer[pc+1]); opcodeBytes = 2;
-        case 0xdc: CALL_COND(flag.cy == 1);             break; // CC a16 = CALL_COND a16 if carry (CY = 1)
-        case 0xdd:                                      break; // NOP (should not be used)
-        case 0xde: SUB(opcode[1], flag.cy); pc++;       break; // SBI d8
-        case 0xdf: RST(3);                              break; // RST 3
-
-        // 0xe0 - 0xef
-        case 0xe0: RET_COND(flag.p == 0);               break; // RPO = RET if parity odd (P = 0)
-        case 0xe1: POP(&h, &l);                         break; // POP H
-        case 0xe2: JMP_COND(flag.p == 0);               break; // JPO a16 = JMP_COND a16 if parity odd (P = 0)
-        case 0xe3: XTHL();                              break; // XTHL
-        case 0xe4: CALL_COND(flag.p == 0);              break; // CPO a16 = CALL_COND a16 if parity odd (P = 0)
-        case 0xe5: PUSH(&h, &l);                        break; // PUSH H
-        case 0xe6: ANI(opcode[1]); pc++;                break; // ANI d8
-        case 0xe7: RST(4);                              break; // RST 4
-        case 0xe8: RET_COND(flag.p == 1);               break; // RPE = RET if parity even (P = 1)
-        case 0xe9: PCHL();                              break; // PCHL
-        case 0xea: JMP_COND(flag.p == 1);               break; // JPE a16 = JMP_COND a16 if parity even (P = 1)
-        case 0xeb: XCHG();                              break; // XCHG
-        case 0xec: CALL_COND(flag.p == 1);              break; // CPE a16 = CALL_COND a16 if parity even (P = 1)
-        case 0xed:                                      break; // NOP (should not be used)
-        case 0xee: XRA(opcode[1]); pc++;                break; // XRI d8
-        case 0xef: RST(5);                              break; // RST 5
-
-        // 0xf0 - 0xff
-        case 0xf0: RET_COND(flag.s == 0);               break; // RP = RET if plus (S = 0)
-        case 0xf1: POP_PSW();                           break; // POP PSW
-        case 0xf2: JMP_COND(flag.s == 0);               break; // JP a16 = JMP_COND a16 if plus (S = 0)
-        case 0xf3: printf("DI");                        break; // TODO: special
-        case 0xf4: CALL_COND(flag.s == 0);              break; // CP a16 = CALL_COND a16 if plus (S = 0)
-        case 0xf5: PUSH_PSW();                          break; // PUSH PSW
-        case 0xf6: ORA(opcode[1]); pc++;                break; // ORI d8
-        case 0xf7: RST(6);                              break; // RST 6
-        case 0xf8: RET_COND(flag.s == 1);               break; // RM = RET if minus (S = 1)
-        case 0xf9: SPHL();                              break; // SPHL
-        case 0xfa: JMP_COND(flag.s == 1);               break; // JM a16 = JMP_COND a16 if minus (S = 1)
-        case 0xfb: printf("EI");                        break; // TODO: special
-        case 0xfc: CALL_COND(flag.s == 1);              break; // CM a16 = CALL_COND a16 if minus (S = 1)
-        case 0xfd:                                      break; // NOP (should not be used)
-        case 0xfe: CMP(opcode[1]); pc++;                break; // CPI d8
-        case 0xff: RST(7);                              break; // RST 7
+// Conditional call
+void Intel8080::Cccc() {
+    temp16 = (uint16_t) read(pc) | (((uint16_t) read(pc + 1)) << 8);
+    if (TestCond((opcode >> 3) & 7)) {
+        push(pc + 2);
+        pc = temp16;
+        cycles -= 17;
+    } else {
+        pc += 2;
+        cycles -= 11;
     }
+}
 
-    cycles += OPCODE_CYCLES[*opcode];
+// Complement accumulator
+void Intel8080::CMA() {
+    reg8[A] = ~reg8[A];
+    cycles -= 4;
+}
+
+// Complement carry
+void Intel8080::CMC() {
+    reg8[FLAGS] ^= 1;
+    cycles -= 4;
+}
+
+// Compare register/memory with accumulator
+void Intel8080::CMP() {
+    reg = opcode & 7;
+    temp8 = readReg8(reg);
+    temp16 = (uint16_t) reg8[A] - (uint16_t) temp8;
+    SetFlag(CY, reg8[A] < temp8); // TODO: Check
+    SetFlag(AC, (reg8[A] & 0x0F) < (temp8 & 0x0F)); // TODO: CHECK
+    SetZSP(static_cast<uint8_t>(temp16));
+    if (reg == M)
+        cycles -= 7;
+    else
+        cycles -= 4;
+}
+
+// Compare immediate with accumulator
+void Intel8080::CPI() {
+    temp8 = read(pc++);
+    temp16 = (uint16_t) reg8[A] - (uint16_t) temp8;
+    SetFlag(CY, borrow(reg8[A], temp8, temp16, 0x80)); // TODO: Check
+    SetFlag(AC, borrow(reg8[A], temp8, temp16, 0x08)); // TODO: CHECK
+    SetZSP(static_cast<uint8_t>(temp16));
+    cycles -= 4;
+}
+
+// Decimal adjust accumulator
+void Intel8080::DAA() {
+    temp16 = reg8[A];
+    if ((temp16 & 0x0F) > 0x09 || GetFlag(AC)) {
+        SetFlag(AC, ((temp16 & 0x0F) + 0x06) & 0xF0);
+        temp16 += 0x06;
+        if (temp16 & 0xFF00) SetFlag(CY, true);
+    }
+    if ((temp16 & 0xF0) > 0x90 || GetFlag(CY)) {
+        temp16 += 0x60;
+        if (temp16 & 0xFF00) SetFlag(CY, true);
+    }
+    SetZSP(static_cast<uint8_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    cycles -= 4;
+}
+
+// Double register add
+void Intel8080::DAD() {
+    reg = (opcode >> 4) & 3;
+    temp32 = (uint32_t) reg16_HL() + (uint32_t) readRP(reg);
+    write16RP(2, static_cast<uint16_t>(temp32));
+    SetFlag(CY, temp32 & 0xFFFF0000);
+    cycles -= 10;
+}
+
+// Decrement register/memory
+void Intel8080::DCR() {
+    reg = (opcode >> 3) & 7;
+    temp8 = readReg8(reg);
+    SetFlag(AC, (temp8 & 0x0F) == 0); // TODO: CHECK
+    SetZSP(temp8 - 1);
+    writeReg8(reg, temp8 - 1);
+    if (reg == M)
+        cycles -= 10;
+    else
+        cycles -= 5;
+}
+
+// Decrement register pair
+void Intel8080::DCX() {
+    reg = (opcode >> 4) & 3;
+    write16RP(reg, readRP(reg) - 1);
+    cycles -= 5;
+}
+
+// Disable interrupts
+void Intel8080::DI() {
+    INTE = 0;
+    cycles -= 4;
+}
+
+// Enable interrupts
+void Intel8080::EI() {
+    INTE = 1;
+    cycles -= 4;
+}
+
+// Halt
+void Intel8080::HLT() {
+    pc--;
+    cycles -= 7;
+}
+
+// Input fom port
+void Intel8080::IN() {
+    reg8[A] = inport(read(pc++));
+    cycles -= 10;
+}
+
+// Increment register/memory
+void Intel8080::INR() {
+    reg = (opcode >> 3) & 7;
+    temp8 = readReg8(reg);
+    SetFlag(AC, carry(temp8, 1, temp8 + 1, 0x08));
+    SetZSP(temp8 + 1);
+    writeReg8(reg, temp8 + 1);
+    if (reg == M)
+        cycles -= 10;
+    else
+        cycles -= 5;
+}
+
+// Increment register pair
+void Intel8080::INX() {
+    reg = (opcode >> 4) & 3;
+    write16RP(reg, readRP(reg) + 1);
+    cycles -= 5;
+}
+
+// Jump
+void Intel8080::JMP() {
+    temp16 = (uint16_t) read(pc) | (((uint16_t) read(pc + 1)) << 8);
+    pc = temp16;
+    cycles -= 10;
+}
+
+// Conditional jump
+void Intel8080::Jccc() {
+    temp16 = (uint16_t) read(pc) | (((uint16_t) read(pc + 1)) << 8);
+    if (TestCond((opcode >> 3) & 7))    pc = temp16;
+    else                                pc += 2;
+    cycles -= 10;
+}
+
+// load accumulator direct
+void Intel8080::LDA() {
+    temp16 = (uint16_t) read(pc) | ((uint16_t) read(pc + 1) << 8);
+    reg8[A] = read(temp16);
+    pc += 2;
+    cycles -= 13;
+}
+
+// load accumulator indirect TODO: CHECK
+void Intel8080::LDAX() {
+    reg = (opcode >> 4) & 3;
+    reg8[A] = read(readRP(reg));
+    cycles -= 7;
+}
+
+// load H and L direct
+void Intel8080::LHLD() {
+    temp16 = (uint16_t) read(pc) | ((uint16_t) read(pc + 1) << 8);
+    reg8[L] = read(temp16 + 0);
+    reg8[H] = read(temp16 + 1);
+    pc += 2;
+    cycles -= 16;
+}
+
+// Load register pair immediate
+void Intel8080::LXI() {
+    reg = (opcode >> 4) & 3;
+    writeRP(reg, read(pc), read(pc + 1));
+    pc += 2;
+    cycles -= 10;
+}
+
+// Move data between register/memory
+void Intel8080::MOV() {
+    reg  = (opcode >> 3) & 7;
+    reg2 = opcode & 7;
+    writeReg8(reg, readReg8(reg2));
+    if (reg == M || reg2 == M)
+        cycles -= 7;
+    else
+        cycles -= 5;
+}
+
+// Move immediate to register/memory
+void Intel8080::MVI() {
+    reg = (opcode >> 3) & 7;
+    writeReg8(reg, read(pc++));
+    if (reg == M)
+        cycles -= 10;
+    else
+        cycles -= 7;
+}
+
+// No operation
+void Intel8080::NOP() {
+    cycles -= 4;
+}
+
+// Inclusive OR with accumulator
+void Intel8080::ORA() {
+    reg = opcode & 7;
+    reg8[A] |= readReg8(reg);
+    SetFlag(AC, false);
+    SetFlag(CY, false);
+    SetZSP(reg8[A]);
+    if (reg == M)
+        cycles -= 7;
+    else
+        cycles -= 4;
+}
+
+// Inclusive OR immediate
+void Intel8080::ORI() {
+    reg8[A] |= read(pc++);
+    SetFlag(AC, false);
+    SetFlag(CY, false);
+    SetZSP(reg8[A]);
+    cycles -= 7;
+}
+
+// Output to port
+void Intel8080::OUT() {
+    outport(read(pc++), reg8[A]);
+    cycles -= 10;
+}
+
+// Move H&L to program counter
+void Intel8080::PCHL() {
+    pc = reg16_HL();
+    cycles -= 5;
+}
+
+// Pop
+void Intel8080::POP() {
+    reg = (opcode >> 4) & 3;
+    write16RP_PUSHPOP(reg, pop());
+    cycles -= 10;
 }
 
 
+// Push
+void Intel8080::PUSH() {
+    reg = (opcode >> 4) & 3;
+    push(readRP_PUSHPOP(reg));
+    cycles -= 11;
+}
 
+// Rotate left through carry
+void Intel8080::RAL() {
+    temp8 = GetFlag(CY);
+    SetFlag(CY, reg8[A] & 0x80);
+    reg8[A] = (reg8[A] << 1) | temp8;
+    cycles -= 4;
+}
+
+// Rotate right through carry
+void Intel8080::RAR() {
+    temp8 = GetFlag(CY);
+    SetFlag(CY, reg8[A] & 1);
+    reg8[A] = (temp8 << 7) | (reg8[A] >> 1);
+    cycles -= 4;
+}
+
+// Return
+void Intel8080::RET() {
+    pc = pop();
+    cycles -= 10;
+}
+
+// Conditional return
+void Intel8080::Rccc() {
+    if (TestCond((opcode >> 3) & 7)) {
+        pc = pop();
+        cycles -= 11;
+    } else {
+        cycles -= 5;
+    }
+}
+
+// Rotate accumulator left
+void Intel8080::RLC() {
+    SetFlag(CY, reg8[A] & 0x80);
+    reg8[A] = (reg8[A] << 1) | (reg8[A] >> 7);
+    cycles -= 4;
+}
+
+// Rotate accumulator right
+void Intel8080::RRC() {
+    SetFlag(CY, reg8[A] & 1);
+    reg8[A] = (reg8[A] << 7) | (reg8[A] >> 1);
+    cycles -= 4;
+}
+
+// Restart
+void Intel8080::RST() {
+    push(pc);
+    pc = (uint16_t) ((opcode >> 3) & 7) << 3; // Call n * 8
+    cycles -= 11;
+}
+
+// Subtract register/memory with borrow
+void Intel8080::SBB() {
+    reg = opcode & 7;
+    temp8 = readReg8(reg);
+    temp16 = (uint16_t) reg8[A] - (uint16_t) temp8 - (uint16_t) GetFlag(CY);
+    SetFlag(AC, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x08));
+    SetFlag(CY, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x80)); // TODO: CHECK
+    SetZSP(static_cast<uint8_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    if (reg == M)
+        cycles -= 7;
+    else
+        cycles -= 4;
+}
+
+// Subtract immediate with borrow
+void Intel8080::SBI() {
+    temp8 = read(pc++);
+    temp16 = (uint16_t) reg8[A] - (uint16_t) temp8 - GetFlag(CY);
+    SetFlag(AC, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x08));
+    SetFlag(CY, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x80)); // TODO: CHECK
+    SetZSP(static_cast<uint8_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    cycles -= 7;
+}
+
+// Store H and L direct
+void Intel8080::SHLD() {
+    temp16 = (uint16_t) read(pc) | ((uint16_t) read(pc + 1) << 8);
+    write(temp16 + 0, reg8[L]);
+    write(temp16 + 1, reg8[H]);
+    pc += 2;
+    cycles -= 16;
+}
+
+// Move H&L to SP
+void Intel8080::SPHL() {
+    sp = reg16_HL();
+    cycles -= 5;
+}
+
+// Store accumulator direct
+void Intel8080::STA() {
+    temp16 = (uint16_t) read(pc) | ((uint16_t) read(pc + 1) << 8);
+    write(temp16, reg8[A]);
+    pc += 2;
+    cycles -= 13;
+}
+
+// Store accumulator indirect
+void Intel8080::STAX() {
+    reg = (opcode >> 4) & 3;
+    write(readRP(reg), reg8[A]);
+}
+
+// Set carry
+void Intel8080::STC() {
+    SetFlag(CY, true);
+    cycles -= 4;
+}
+
+// Subtract register/memory from accumulator
+void Intel8080::SUB() {
+    reg = opcode & 7;
+    temp8 = readReg8(reg);
+    temp16 = (uint16_t) reg8[A] - (uint16_t) temp8;
+    SetFlag(AC, borrow(reg8[A], temp8, temp16, 0x08));
+    SetFlag(CY, borrow(reg8[A], temp8, temp16, 0x80));
+    SetZSP(static_cast<uint8_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    if (reg == M)
+        cycles -= 7;
+    else
+        cycles -= 4;
+}
+
+// Subtract immediate from accumulator
+void Intel8080::SUI() {
+    temp8 = read(pc++);
+    temp16 = (uint16_t) reg8[A] - (uint16_t) temp8;
+    SetFlag(AC, borrow(reg8[A], temp8, temp16, 0x08)); // TODO: CHECK
+    SetFlag(CY, borrow(reg8[A], temp8, temp16, 0x80));
+    SetZSP(static_cast<uint8_t>(temp16));
+    reg8[A] = temp16 & 0xFF;
+    cycles -= 7;
+}
+
+// Exhange H and L with D and E
+void Intel8080::XCHG() {
+    temp8 = reg8[H];
+    reg8[H] = reg8[D];
+    reg8[D] = temp8;
+    temp8 = reg8[L];
+    reg8[L] = reg8[E];
+    reg8[E] = temp8;
+    cycles -= 5;
+}
+
+// Exclusive OR with accumulator
+void Intel8080::XRA() {
+    reg = opcode & 7;
+    reg8[A] ^= readReg8(reg);
+    SetFlag(AC, false);
+    SetFlag(CY, false);
+    SetZSP(reg8[A]);
+    if (reg == M)
+        cycles -= 7;
+    else
+        cycles -= 4;
+}
+
+// Exclusive OR immediate with accumulator
+void Intel8080::XRI() {
+    temp8 = read(pc++);
+    reg8[A] ^= temp8;
+    SetFlag(AC, false);
+    SetFlag(CY, false);
+    SetZSP(reg8[A]);
+    cycles -= 7;
+}
+
+// Exchange H&L with top of stack
+void Intel8080::XTHL() {
+    temp16 = pop();
+    push(reg16_HL());
+    write16RP(2, temp16);
+    cycles -= 18;
+}

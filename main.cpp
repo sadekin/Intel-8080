@@ -1,9 +1,15 @@
 #include "cpu.hpp"
-
 #include <iostream>
 #include <fstream>
 #include <vector>
 
+#include "platform.hpp"
+
+int main() {
+    Platform* p = new Platform();
+    p->Run();
+    return 0;
+}
 
 // Command line args
 //int main(int argc, char* argv[]) {
@@ -38,50 +44,3 @@
 //
 //    return 0;
 //}
-
-// Without command line args
-//int main() {
-//
-//    std::ifstream f("invaders", std::ios::binary | std::ios::ate);
-//
-//    // Determine the file size by checking the current position (which is at the end due to std::ios::ate)
-//    std::streampos fsize = f.tellg();
-//    // Reset the position to the beginning of the file for reading
-//    f.seekg(0, std::ios::beg);
-//
-//    std::vector<uint8_t> buffer(fsize);
-//    if (!f.read(reinterpret_cast<char*>(buffer.data()), fsize)) {
-//        std::cerr << "Error reading file." << std::endl;
-//        return 1;
-//    }
-//
-//    f.close();
-//
-//    int pc = 0;
-//    while (pc < fsize) {
-//        pc += Intel8080::Disassemble(buffer.data(), pc);
-//    }
-//
-//    return 0;
-//}
-
-int main() {
-    Intel8080 cpu;
-
-    if (!cpu.Load("invaders.h", 0x0000) ||
-        !cpu.Load("invaders.g", 0x0800) ||
-        !cpu.Load("invaders.f", 0x1000) ||
-        !cpu.Load("invaders.e", 0x1800)
-        ) {
-        std::cout << "Could not load file." << std::endl;
-        return 1;
-    } else {
-        std::cout << "Successfully loaded file." << std::endl;
-    }
-
-    while (true) {
-        cpu.Emulate8080();
-    }
-
-    return 0;
-}
