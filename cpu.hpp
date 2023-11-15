@@ -10,22 +10,14 @@
 
 class Intel8080 {
 public:
-//    Intel8080() : INTE(), pc(), sp(), reg8(), memory(nullptr), ioPorts(nullptr) {
-//        memory = new Memory();
-//        ioPorts = new IOPorts();
-//
-//    }
     Intel8080();
 
     int     execute(int numCycles);
-
     uint8_t read(uint16_t addr) const;
     void    write(uint16_t addr, uint8_t data) const;
     uint8_t inport(uint8_t port) const;
     void    outport(uint8_t port, uint8_t data) const;
-
     void    interrupt(uint8_t n);
-
     int     disassemble(uint8_t opcode, uint16_t pc);
 
 public:
