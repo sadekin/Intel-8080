@@ -49,75 +49,75 @@ cmake_ninja_workdir = /Users/sadekin/CLionProjects/Intel-8080/cmake-build-debug/
 
 build cmake_object_order_depends_target_Intel_8080: phony || CMakeFiles/Intel_8080.dir
 
-build CMakeFiles/Intel_8080.dir/main.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/main.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/main.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/main.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/main.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/main.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/cpu.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/cpu.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/cpu.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/cpu.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/cpu.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/cpu.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/opcodes.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/opcodes.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/opcodes.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/opcodes.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/opcodes.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/opcodes.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/disassemble.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/disassemble.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/disassemble.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/disassemble.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/disassemble.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/disassemble.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/memory.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/memory.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/memory.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/memory.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/memory.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/memory.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/io.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/io.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/io.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/io.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/io.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/io.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/display.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/display.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/display.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/display.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/display.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/display.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/platform.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/platform.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/platform.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/platform.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/platform.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/platform.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/utils.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/utils.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/utils.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/utils.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/utils.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/utils.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
-build CMakeFiles/Intel_8080.dir/audio.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/audio.cpp || cmake_object_order_depends_target_Intel_8080
-  DEP_FILE = CMakeFiles/Intel_8080.dir/audio.cpp.o.d
+build CMakeFiles/Intel_8080.dir/src/audio.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/src/audio.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/src/audio.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
-  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir/src
 
 
 # =============================================================================
@@ -127,7 +127,7 @@ build CMakeFiles/Intel_8080.dir/audio.cpp.o: CXX_COMPILER__Intel_8080_unscanned_
 #############################################
 # Link the executable Intel_8080
 
-build Intel_8080: CXX_EXECUTABLE_LINKER__Intel_8080_Debug CMakeFiles/Intel_8080.dir/main.cpp.o CMakeFiles/Intel_8080.dir/cpu.cpp.o CMakeFiles/Intel_8080.dir/opcodes.cpp.o CMakeFiles/Intel_8080.dir/disassemble.cpp.o CMakeFiles/Intel_8080.dir/memory.cpp.o CMakeFiles/Intel_8080.dir/io.cpp.o CMakeFiles/Intel_8080.dir/display.cpp.o CMakeFiles/Intel_8080.dir/platform.cpp.o CMakeFiles/Intel_8080.dir/utils.cpp.o CMakeFiles/Intel_8080.dir/audio.cpp.o | /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib /opt/homebrew/lib/libsfml-audio.2.6.0.dylib /opt/homebrew/lib/libsfml-network.2.6.0.dylib /opt/homebrew/lib/libsfml-window.2.6.0.dylib /opt/homebrew/lib/libsfml-system.2.6.0.dylib
+build Intel_8080: CXX_EXECUTABLE_LINKER__Intel_8080_Debug CMakeFiles/Intel_8080.dir/src/main.cpp.o CMakeFiles/Intel_8080.dir/src/cpu.cpp.o CMakeFiles/Intel_8080.dir/src/opcodes.cpp.o CMakeFiles/Intel_8080.dir/src/disassemble.cpp.o CMakeFiles/Intel_8080.dir/src/memory.cpp.o CMakeFiles/Intel_8080.dir/src/io.cpp.o CMakeFiles/Intel_8080.dir/src/display.cpp.o CMakeFiles/Intel_8080.dir/src/platform.cpp.o CMakeFiles/Intel_8080.dir/src/utils.cpp.o CMakeFiles/Intel_8080.dir/src/audio.cpp.o | /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib /opt/homebrew/lib/libsfml-audio.2.6.0.dylib /opt/homebrew/lib/libsfml-network.2.6.0.dylib /opt/homebrew/lib/libsfml-window.2.6.0.dylib /opt/homebrew/lib/libsfml-system.2.6.0.dylib
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk
   LINK_LIBRARIES = -Wl,-rpath,/opt/homebrew/lib  /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib  /opt/homebrew/lib/libsfml-audio.2.6.0.dylib  /opt/homebrew/lib/libsfml-network.2.6.0.dylib  /opt/homebrew/lib/libsfml-window.2.6.0.dylib  /opt/homebrew/lib/libsfml-system.2.6.0.dylib
   OBJECT_DIR = CMakeFiles/Intel_8080.dir

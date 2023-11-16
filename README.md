@@ -1,6 +1,10 @@
-# Intel 8080 Emulator
+# Intel 8080 + Yet Another Space Invaders Machine Emulator
 
+Why? Why not? I learned a lot. 
 
+## Screenshots
+![Startup Screen](screenshots/startup.png "Startup Screen")
+![Gameplay](screenshots/gameplay.png "Startup Screen")
 
 ## Resources
 * [Emulator 101](http://www.emulator101.com/)
