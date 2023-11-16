@@ -12,15 +12,14 @@ class Intel8080 {
 public:
     Intel8080();
 
-    // A description of each of these is included above their implementations.
-    int     execute(int numCycles);
-    uint8_t read(uint16_t addr) const;
-    void    write(uint16_t addr, uint8_t data) const;
-    uint8_t inport(uint8_t port) const;
-    void    outport(uint8_t port, uint8_t data) const;
-    void    interrupt(uint8_t n);
-    int     disassemble(uint8_t opcode, uint16_t pc);
-    bool    load(const std::string& filePath, uint16_t loadAddress) const;
+    int     execute(int numCycles);                                         // Execute cycles
+    uint8_t read(uint16_t addr) const;                                      // Read memory
+    void    write(uint16_t addr, uint8_t data) const;                       // Write memory
+    uint8_t inport(uint8_t port) const;                                     // Read input port
+    void    outport(uint8_t port, uint8_t data) const;                      // Write output port
+    void    interrupt(uint8_t n);                                           // Raise interrupt
+    int     disassemble(uint8_t opcode, uint16_t pc);                       // Translate hex code to assembly
+    bool    load(const std::string& filePath, uint16_t loadAddress) const;  // Load program into memory
 
     Memory*     memory;     // Pointer to memory management object
     IOPorts*    ioPorts;    // Pointer to IO port management object

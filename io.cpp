@@ -77,18 +77,18 @@ uint8_t IOPorts::read(uint8_t port) {
 // Source: http://computerarcheology.com/Arcade/SpaceInvaders/Hardware.html
 void IOPorts::write(uint8_t port, uint8_t data) {
     switch (port) {
-        case 2:                             // shift amount (3 bits)
+        case 2:                                                     // shift amount (3 bits)
             shiftOffset = data & 0x07;
             break;
-        case 3:                             // sound bits
+        case 3:                                                     // sound bits
             prevOutPort3 = currOutPort3;
             currOutPort3 = data;
-            playNext.push({3 , prevOutPort3, currOutPort3 });
+            playNext.push({3, prevOutPort3, currOutPort3 });
             break;
-        case 4:                             // shift data
+        case 4:                                                     // shift data
             shiftRegister = (shiftRegister >> 8) | (data << 8);
             break;
-        case 5:                             // sound bits
+        case 5:                                                     // sound bits
             prevOutPort5 = currOutPort5;
             currOutPort5 = data;
             playNext.push({5, prevOutPort5, currOutPort5 });
