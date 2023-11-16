@@ -114,8 +114,8 @@ void Intel8080::CMP() {
     reg = opcode & 7;
     temp8 = readReg8(reg);
     temp16 = (uint16_t) reg8[A] - (uint16_t) temp8;
-    SetFlag(CY, reg8[A] < temp8); // TODO: Check
-    SetFlag(AC, (reg8[A] & 0x0F) < (temp8 & 0x0F)); // TODO: CHECK
+    SetFlag(CY, reg8[A] < temp8);
+    SetFlag(AC, (reg8[A] & 0x0F) < (temp8 & 0x0F));
     SetZSP(static_cast<uint8_t>(temp16));
     if (reg == M)
         cycles -= 7;
@@ -127,8 +127,8 @@ void Intel8080::CMP() {
 void Intel8080::CPI() {
     temp8 = read(pc++);
     temp16 = (uint16_t) reg8[A] - (uint16_t) temp8;
-    SetFlag(CY, borrow(reg8[A], temp8, temp16, 0x80)); // TODO: Check
-    SetFlag(AC, borrow(reg8[A], temp8, temp16, 0x08)); // TODO: CHECK
+    SetFlag(CY, borrow(reg8[A], temp8, temp16, 0x80));
+    SetFlag(AC, borrow(reg8[A], temp8, temp16, 0x08));
     SetZSP(static_cast<uint8_t>(temp16));
     cycles -= 4;
 }
@@ -163,7 +163,7 @@ void Intel8080::DAD() {
 void Intel8080::DCR() {
     reg = (opcode >> 3) & 7;
     temp8 = readReg8(reg);
-    SetFlag(AC, (temp8 & 0x0F) == 0); // TODO: CHECK
+    SetFlag(AC, (temp8 & 0x0F) == 0);
     SetZSP(temp8 - 1);
     writeReg8(reg, temp8 - 1);
     if (reg == M)
@@ -181,13 +181,13 @@ void Intel8080::DCX() {
 
 // Disable interrupts
 void Intel8080::DI() {
-    INTE = 0;
+    intEnable = 0;
     cycles -= 4;
 }
 
 // Enable interrupts
 void Intel8080::EI() {
-    INTE = 1;
+    intEnable = 1;
     cycles -= 4;
 }
 
@@ -238,7 +238,7 @@ void Intel8080::Jccc() {
     cycles -= 10;
 }
 
-// load accumulator direct
+// Load accumulator direct
 void Intel8080::LDA() {
     temp16 = (uint16_t) read(pc) | ((uint16_t) read(pc + 1) << 8);
     reg8[A] = read(temp16);
@@ -246,14 +246,14 @@ void Intel8080::LDA() {
     cycles -= 13;
 }
 
-// load accumulator indirect TODO: CHECK
+// Load accumulator indirect
 void Intel8080::LDAX() {
     reg = (opcode >> 4) & 3;
     reg8[A] = read(readRP(reg));
     cycles -= 7;
 }
 
-// load H and L direct
+// Load H and L direct
 void Intel8080::LHLD() {
     temp16 = (uint16_t) read(pc) | ((uint16_t) read(pc + 1) << 8);
     reg8[L] = read(temp16 + 0);
@@ -404,7 +404,7 @@ void Intel8080::SBB() {
     temp8 = readReg8(reg);
     temp16 = (uint16_t) reg8[A] - (uint16_t) temp8 - (uint16_t) GetFlag(CY);
     SetFlag(AC, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x08));
-    SetFlag(CY, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x80)); // TODO: CHECK
+    SetFlag(CY, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x80));
     SetZSP(static_cast<uint8_t>(temp16));
     reg8[A] = temp16 & 0xFF;
     if (reg == M)
@@ -418,7 +418,7 @@ void Intel8080::SBI() {
     temp8 = read(pc++);
     temp16 = (uint16_t) reg8[A] - (uint16_t) temp8 - GetFlag(CY);
     SetFlag(AC, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x08));
-    SetFlag(CY, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x80)); // TODO: CHECK
+    SetFlag(CY, borrow(reg8[A], temp8 + GetFlag(CY), temp16, 0x80));
     SetZSP(static_cast<uint8_t>(temp16));
     reg8[A] = temp16 & 0xFF;
     cycles -= 7;
@@ -478,7 +478,7 @@ void Intel8080::SUB() {
 void Intel8080::SUI() {
     temp8 = read(pc++);
     temp16 = (uint16_t) reg8[A] - (uint16_t) temp8;
-    SetFlag(AC, borrow(reg8[A], temp8, temp16, 0x08)); // TODO: CHECK
+    SetFlag(AC, borrow(reg8[A], temp8, temp16, 0x08));
     SetFlag(CY, borrow(reg8[A], temp8, temp16, 0x80));
     SetZSP(static_cast<uint8_t>(temp16));
     reg8[A] = temp16 & 0xFF;

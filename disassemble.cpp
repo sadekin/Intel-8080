@@ -85,15 +85,10 @@
 //  XRI - Exclusive OR Immediate with Accumulator
 // XTHL - eXchange Top of stack with HL
 
-/* Translates a stream of hex numbers back into assembly language source.
- * The 8080 is little endian, and endianess is easily dealt with by
- * reading and writing one byte at a time.
- *
- * *buffer is a valid pointer to 8080 assembly code
- *
- * returns the number of bytes of the opcode
-*/
-
+// Disassembles and logs the given opcode, i.e., translates
+// a stream of hex numbers back into assembly language source.
+// The 8080 is little endian, and endianness is easily dealt
+// with by reading/writing one byte at a time.
 int Intel8080::disassemble(uint8_t opcode, uint16_t pc) {
     int opBytes = 1;
     printf("%04x  ", pc);

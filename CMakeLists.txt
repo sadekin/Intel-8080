@@ -8,16 +8,17 @@ add_executable(Intel_8080 main.cpp
         cpu.cpp
         opcodes.cpp
         disassemble.cpp
-        io.hpp
         memory.hpp
         memory.cpp
+        io.hpp
         io.cpp
-        audio.hpp
         display.hpp
         display.cpp
         platform.hpp
         platform.cpp
-        utils.cpp)
+        utils.cpp
+        audio.hpp
+        audio.cpp)
 
 # SFML
 find_package(SFML 2.6 COMPONENTS system window graphics network audio REQUIRED)

@@ -1,79 +1,64 @@
 #include "display.hpp"
 
-Display::Display() {
-    // Initialize SFML context settings with antialiasing
-    sf::ContextSettings graphicsSettings;
-    graphicsSettings.antialiasingLevel = 8;
+constexpr uint16_t SCREEN_WIDTH = 224;
+constexpr uint16_t SCREEN_HEIGHT = 256;
+constexpr uint16_t MEMORY_BASE_OFFSET = 0x2400;
+constexpr uint16_t VERTICAL_OFFSET_MULTIPLIER = 0x20;
 
-    // Create a new SFML window for rendering
-    // The window dimensions are set to 224x256 pixels to match the Space Invaders screen
-    // The title of the window is set to "I8080 Emulator"
-    window = new sf::RenderWindow(
-            sf::VideoMode(224, 256),  // Window size (width, height)
-            "Space Invaders",         // Window title
-            sf::Style::Default,       // Window style (default style)
-            graphicsSettings          // Context settings (with antialiasing)
-    );
+Display::Display() : window(sf::VideoMode(2.5 * SCREEN_WIDTH, 2.5 * SCREEN_HEIGHT), "Space Invaders") {
+    window.setFramerateLimit(60);
+    texture.create(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    // Set the frame rate limit of the window to 60 frames per second
-    window->setFramerateLimit(60);
+    // Create and set the view to scale the original content.
+    // This is done so that the window isn't too small upon initial display.
+    sf::View view(sf::FloatRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
+    view.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    view.setViewport(sf::FloatRect(0, 0, 1.f, 1.f));
+    window.setView(view);
 
     // Load the background image
-    if (!backgroundTexture.loadFromFile("palebluedot.png")) {
-        std::cout << "Failed to load background image." << std::endl;
-        exit(1); // Exit if the image loading fails
+    if (!backgroundTexture.loadFromFile("earth.png")) {
+        std::cerr << "Failed to load background image." << std::endl;
+        exit(1);
     }
-
-    // Set up the sprite to use this texture
     backgroundSprite.setTexture(backgroundTexture);
 }
 
-
-Display::~Display() { delete window; }
-
-
-void Display::Render(Intel8080& cpu) {
+void Display::draw(Intel8080& cpu) {
     // Initialize a 224x256 image (rotated anticlockwise) filled with black color
     sf::Image image;
     image.create(224, 256, sf::Color::Black);
 
     // Iterate over each pixel to set its color based on CPU memory and overlay
-    for(uint16_t y = 0; y < 224; y++) {     // Vertical axis
-        for(int16_t x = 0; x < 256; x++) {  // Horizontal axis
+    for (uint16_t y = 0; y < 224; y++) {     // Vertical axis
+        for (int16_t x = 0; x < 256; x++) {  // Horizontal axis
             // Calculate memory offsets for pixel data
-            uint16_t memoryBaseOffset = 0x2400;
-            uint16_t memoryVerticalOffset = 0x20 * y;
-            uint16_t memoryHorizontalOffset = (x >> 3);
-            uint16_t memoryAddress = memoryBaseOffset + memoryVerticalOffset + memoryHorizontalOffset;
-            uint8_t  bitPosition = x % 8;
+            uint16_t memoryVerticalOffset = VERTICAL_OFFSET_MULTIPLIER * y;
+            uint16_t memoryHorizontalOffset = x >> 3;
+            uint16_t memoryAddress = MEMORY_BASE_OFFSET + memoryVerticalOffset + memoryHorizontalOffset;
+            uint8_t bitPosition = x % 8;
 
             // Determine if the current pixel is on or off
             bool pixelOn = (cpu.read(memoryAddress) & (1 << bitPosition)) != 0;
-            sf::Color pixelColor;
 
-            // Retrieve the overlay color for the current pixel if the pixel is on
-            pixelColor = pixelOn ? getOverlayColor(y, x) : sf::Color::Black;
+            // Retrieve the overlay color for the current pixel if the pixel is on.
+            // Note: x and y are interchanged as the parameters due to rotation.
+            sf::Color pixelColor = pixelOn ? getOverlayColor(y, x) : sf::Color::Transparent;
 
             // Set the pixel color with coordinates rotated counter-clockwise
-            image.setPixel(y, 256 - x - 1, pixelColor);
+            image.setPixel(y, SCREEN_HEIGHT - x - 1, pixelColor);;
         }
     }
 
     // Convert image to texture and create sprite for rendering
-    sf::Texture texture;
-    texture.loadFromImage(image);
-    sf::Sprite sprite;
-    sprite.setPosition(0, 0);
-    sprite.setTexture(texture, true);
+    texture.update(image);
+    sf::Sprite sprite(texture);
+    window.clear();
+    window.draw(backgroundSprite);
+    window.draw(sprite);
 
-    // Clear the window with a black color (optional if background covers entire window)
-    window->clear(sf::Color::Black);
-
-    // Draw the background sprite
-    window->draw(backgroundSprite);
-
-    // Draw the sprite (rendered image) in the window
-    window->draw(sprite);
+    // Display on screen what has been rendered to the window so far
+    window.display();
 }
 
 // The screen is 256 * 224 pixels, and is rotated anti-clockwise.
@@ -111,16 +96,16 @@ void Display::Render(Intel8080& cpu) {
 sf::Color Display::getOverlayColor(uint8_t x, uint8_t y) {
     // Define overlay colors based on vertical and horizontal positions
     // Top overlay region - White
-    if (y >= 256 - 32) return sf::Color::White;
+    if (y >= SCREEN_HEIGHT - 32) return sf::Color::White;
 
     // Second region from the top - Red
-    if (y >= (256 - 32 - 32)) return sf::Color::Red;
+    if (y >= (SCREEN_HEIGHT - 32 - 32)) return sf::Color::Red;
 
     // Middle region - White
-    if (y >= (256 - 32 - 32 - 120)) return sf::Color::White;
+    if (y >= (SCREEN_HEIGHT - 32 - 32 - 120)) return sf::Color::White;
 
     // Fourth region from the top - Green
-    if (y >= (256 - 32 - 32 - 120 - 56)) return sf::Color::Green;
+    if (y >= (SCREEN_HEIGHT - 32 - 32 - 120 - 56)) return sf::Color::Green;
 
     // Bottom region split into three parts
     // Leftmost part - White
@@ -132,4 +117,3 @@ sf::Color Display::getOverlayColor(uint8_t x, uint8_t y) {
     // Rightmost part - White
     return sf::Color::White;
 }
-

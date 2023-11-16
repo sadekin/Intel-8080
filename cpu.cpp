@@ -1,6 +1,6 @@
 #include "cpu.hpp"
 
-Intel8080::Intel8080() : INTE(), pc(), sp(), reg8(), memory(nullptr), ioPorts(nullptr){
+Intel8080::Intel8080() : intEnable(), pc(), sp(), reg8(), memory(nullptr), ioPorts(nullptr){
     memory = new Memory();
     ioPorts = new IOPorts();
 
@@ -25,38 +25,47 @@ Intel8080::Intel8080() : INTE(), pc(), sp(), reg8(), memory(nullptr), ioPorts(nu
     };
 }
 
-
-uint8_t Intel8080::read(uint16_t addr) const { return memory->read(addr); }
-
-void Intel8080::write(uint16_t addr, uint8_t data) const {
-    memory->write(addr, data);
-}
-
-uint8_t Intel8080::inport(uint8_t port) const {
-    return ioPorts->read(port);
-}
-
-void Intel8080::outport(uint8_t port, uint8_t data) const {
-    ioPorts->write(port, data);
-}
-
-void Intel8080::interrupt(uint8_t n) {
-    if (!INTE) return;
-    push(pc);
-    pc = (uint16_t) n << 3;
-    INTE = 0;
-}
-
-
+// Executes a specified number of CPU cycles
 int Intel8080::execute(int numCycles) {
     cycles = numCycles;
 
     while (cycles > 0) {
         opcode = read(pc++);
         disassemble(opcode, pc - 1);
-        if (opcode < 0 || opcode >= 256) XXX();
         (this->*lookup[opcode])();
     }
 
     return cycles;
+}
+
+// Reads a byte from memory at the specified address
+uint8_t Intel8080::read(uint16_t addr) const {
+    return memory->read(addr);
+}
+
+// Writes a byte to memory at the specified address
+void Intel8080::write(uint16_t addr, uint8_t data) const {
+    memory->write(addr, data);
+}
+
+// Reads from an input port
+uint8_t Intel8080::inport(uint8_t port) const {
+    return ioPorts->read(port);
+}
+// Writes to an output port
+void Intel8080::outport(uint8_t port, uint8_t data) const {
+    ioPorts->write(port, data);
+}
+
+// Triggers an interrupt with the given interrupt number
+void Intel8080::interrupt(uint8_t n) {
+    if (!intEnable) return;
+    push(pc);
+    pc = (uint16_t) n << 3;
+    intEnable = 0;
+}
+
+// Loads a game or program from a file into memory
+bool Intel8080::load(const std::string& filePath, uint16_t loadAddress) const {
+    return memory->load(filePath, loadAddress);
 }

@@ -7,7 +7,7 @@
 
 int main() {
     Platform* p = new Platform();
-    p->Run();
+    p->run();
     return 0;
 }
 

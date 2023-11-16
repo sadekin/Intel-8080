@@ -1,7 +1,8 @@
 #include "cpu.hpp"
 
-/* Utility functions for reading/writing memory */
+/* Utility functions for reading/writing memory/registers */
 
+// Reads an 8-bit value from a specified register (or memory location when r == M).
 uint8_t Intel8080::readReg8(uint8_t r) {
     if (r == M)
         return read(reg16_HL());
@@ -9,6 +10,7 @@ uint8_t Intel8080::readReg8(uint8_t r) {
         return reg8[r];
 }
 
+// Writes an 8-bit value to a specified register (or memory location when r == M).
 void Intel8080::writeReg8(uint8_t r, uint8_t value) {
     if (r == M)
         write(reg16_HL(), value);
@@ -16,6 +18,7 @@ void Intel8080::writeReg8(uint8_t r, uint8_t value) {
         reg8[r] = value;
 }
 
+// Reads a 16-bit value from a register pair.
 // Register pair 'RP' fields:
 // 00=BC   (B:C as 16 bit register)
 // 01=DE   (D:E as 16 bit register)
@@ -32,6 +35,7 @@ uint16_t Intel8080::readRP(uint8_t rp) {
     }
 }
 
+// Writes two 8-bit values to a register pair.
 void Intel8080::writeRP(uint8_t rp, uint8_t lb, uint8_t hb) {
     switch (rp) {
         case 0x00:
@@ -54,6 +58,7 @@ void Intel8080::writeRP(uint8_t rp, uint8_t lb, uint8_t hb) {
     }
 }
 
+// Writes a 16-bit value to a register pair.
 void Intel8080::write16RP(uint8_t rp, uint16_t value) {
     switch (rp) {
         case 0x00:
@@ -76,6 +81,9 @@ void Intel8080::write16RP(uint8_t rp, uint16_t value) {
     }
 }
 
+// Reads a 16-bit value from one of the register pairs or the PSW (Program Status Word)
+// based on the input 'rp', which specifies the register pair to read.
+//
 // Register pair 'RP' fields:
 // 00=BC   (B:C as 16 bit register)
 // 01=DE   (D:E as 16 bit register)
@@ -92,6 +100,10 @@ uint16_t Intel8080::readRP_PUSHPOP(uint8_t rp) {
     }
 }
 
+// Writes a 16-bit value to one of the register pairs or the PSW (Program Status Word),
+// based on the input 'rp'. The register pairs are encoded similarly to readRP_PUSHPOP.
+// The method splits the 16-bit 'value' into two 8-bit values and writes them to the
+// appropriate registers or the PSW.
 void Intel8080::write16RP_PUSHPOP(uint8_t rp, uint16_t value) {
     switch (rp) {
         case 0b00:
@@ -118,23 +130,43 @@ void Intel8080::write16RP_PUSHPOP(uint8_t rp, uint16_t value) {
 }
 
 
-// Little endian
+// Pushes a 16-bit value onto the stack (little endian)
 void Intel8080::push(uint16_t value) {
     write(--sp, value >> 8);    // write MSB after LSB
     write(--sp, value & 0xFF);  // write LSB before MSB
 }
 
+// Pops a 16-bit value from the stack
 uint16_t Intel8080::pop() {
     temp16 = read(sp++);
     temp16 |= ((uint16_t) read(sp++)) << 8;
-    return temp16;    // MSB | LSB
+    return temp16;              // MSB | LSB
 }
 
 /* Utility functions for setting/getting/testing condition flags */
+
+// Sets or clears a specific flag.
+void Intel8080::SetFlag(FLAGS8080 f, bool v) {
+    if (v)
+        reg8[FLAGS] |= (1 << f);
+    else
+        reg8[FLAGS] &= ~(1 << f);
+}
+
+// Sets Zero, Sign, and Parity flags based on value.
+void Intel8080::SetZSP(uint8_t value) {
+    SetFlag(Z, value == 0);
+    SetFlag(S, value & 0x80);
+    SetFlag(P, parity(value));
+}
+
+// Retrieves the value of a specific flag.
 uint8_t Intel8080::GetFlag(FLAGS8080 f) {
     return (reg8[FLAGS] >> f) & 1;
 }
 
+// Tests condition codes.
+//
 // Condition code 'CCC' fields: (FLAGS: S Z x A x P x C)
 //    000=NZ  ('Z'ero flag not set)
 //    001=Z   ('Z'ero flag set)
@@ -159,39 +191,30 @@ bool Intel8080::TestCond(uint8_t code) {
     }
 }
 
-void Intel8080::SetFlag(FLAGS8080 f, bool v) {
-    if (v)
-        reg8[FLAGS] |= (1 << f);
-    else
-        reg8[FLAGS] &= ~(1 << f);
-}
-
-void Intel8080::SetZSP(uint8_t value) {
-    SetFlag(Z, value == 0);
-    SetFlag(S, value & 0x80);
-    SetFlag(P, parity(value));
-}
-
+// Tests parity of a given byte. Returns true if there is an even number of 1 bits.
 // See approach 2 in editorial: https://leetcode.com/problems/number-of-1-bits/editorial/
 bool Intel8080::parity(uint8_t value) {
     uint8_t oneBitsCount;
     for (oneBitsCount = 0; value != 0; oneBitsCount++)
         value &= (value - 1);
-    return (oneBitsCount & 1) == 0; // Set P when there is an even number of 1 bits
+    return (oneBitsCount & 1) == 0;
 }
 
+// Checks if an addition operation resulted in a carry.
+//
 // Basically the flag is testing the result of upper bits:
 // Carry can occur in one of three cases:
 // 1. msb(a) and msb(b) are set (0.1xxx + 0.1xxx -> 1.0xxx)
 // 2. msb(a) is set but msb(result) is not set (0.1xxx + 0.xxxx -> 1.0xxx)
 // 3. msb(b) is set but msb(result) is not set (0.xxxx + 0.1xxx -> 1.0xxx)
 // Source: https://www.reddit.com/r/EmuDev/comments/110epqk/comment/j89y04a/?utm_source=share&utm_medium=web2x&context=3
-bool Intel8080::carry(uint8_t a, uint8_t b, uint8_t result, uint8_t m) {
-    return ((a & b) | (a & ~result) | (b & ~result)) & m;
+bool Intel8080::carry(uint8_t a, uint8_t b, uint8_t result, uint8_t mask) {
+    return ((a & b) | (a & ~result) | (b & ~result)) & mask;
 }
 
+// Checks if a subtraction operation resulted in a borrow.
 // a - b = result => a = b + result
-bool Intel8080::borrow(uint8_t a, uint8_t b, uint8_t result, uint8_t m) {
-    return carry(result, b, a, m);
+bool Intel8080::borrow(uint8_t a, uint8_t b, uint8_t result, uint8_t mask) {
+    return carry(result, b, a, mask);
 }
 

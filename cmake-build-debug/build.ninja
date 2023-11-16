@@ -112,6 +112,13 @@ build CMakeFiles/Intel_8080.dir/utils.cpp.o: CXX_COMPILER__Intel_8080_unscanned_
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
   OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
 
+build CMakeFiles/Intel_8080.dir/audio.cpp.o: CXX_COMPILER__Intel_8080_unscanned_Debug /Users/sadekin/CLionProjects/Intel-8080/audio.cpp || cmake_object_order_depends_target_Intel_8080
+  DEP_FILE = CMakeFiles/Intel_8080.dir/audio.cpp.o.d
+  FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/sadekin/CLionProjects/Intel-8080/} -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/Intel_8080.dir
+  OBJECT_FILE_DIR = CMakeFiles/Intel_8080.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target Intel_8080
@@ -120,7 +127,7 @@ build CMakeFiles/Intel_8080.dir/utils.cpp.o: CXX_COMPILER__Intel_8080_unscanned_
 #############################################
 # Link the executable Intel_8080
 
-build Intel_8080: CXX_EXECUTABLE_LINKER__Intel_8080_Debug CMakeFiles/Intel_8080.dir/main.cpp.o CMakeFiles/Intel_8080.dir/cpu.cpp.o CMakeFiles/Intel_8080.dir/opcodes.cpp.o CMakeFiles/Intel_8080.dir/disassemble.cpp.o CMakeFiles/Intel_8080.dir/memory.cpp.o CMakeFiles/Intel_8080.dir/io.cpp.o CMakeFiles/Intel_8080.dir/display.cpp.o CMakeFiles/Intel_8080.dir/platform.cpp.o CMakeFiles/Intel_8080.dir/utils.cpp.o | /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib /opt/homebrew/lib/libsfml-audio.2.6.0.dylib /opt/homebrew/lib/libsfml-network.2.6.0.dylib /opt/homebrew/lib/libsfml-window.2.6.0.dylib /opt/homebrew/lib/libsfml-system.2.6.0.dylib
+build Intel_8080: CXX_EXECUTABLE_LINKER__Intel_8080_Debug CMakeFiles/Intel_8080.dir/main.cpp.o CMakeFiles/Intel_8080.dir/cpu.cpp.o CMakeFiles/Intel_8080.dir/opcodes.cpp.o CMakeFiles/Intel_8080.dir/disassemble.cpp.o CMakeFiles/Intel_8080.dir/memory.cpp.o CMakeFiles/Intel_8080.dir/io.cpp.o CMakeFiles/Intel_8080.dir/display.cpp.o CMakeFiles/Intel_8080.dir/platform.cpp.o CMakeFiles/Intel_8080.dir/utils.cpp.o CMakeFiles/Intel_8080.dir/audio.cpp.o | /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib /opt/homebrew/lib/libsfml-audio.2.6.0.dylib /opt/homebrew/lib/libsfml-network.2.6.0.dylib /opt/homebrew/lib/libsfml-window.2.6.0.dylib /opt/homebrew/lib/libsfml-system.2.6.0.dylib
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk
   LINK_LIBRARIES = -Wl,-rpath,/opt/homebrew/lib  /opt/homebrew/lib/libsfml-graphics.2.6.0.dylib  /opt/homebrew/lib/libsfml-audio.2.6.0.dylib  /opt/homebrew/lib/libsfml-network.2.6.0.dylib  /opt/homebrew/lib/libsfml-window.2.6.0.dylib  /opt/homebrew/lib/libsfml-system.2.6.0.dylib
   OBJECT_DIR = CMakeFiles/Intel_8080.dir
