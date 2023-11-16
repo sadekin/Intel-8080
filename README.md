@@ -3,8 +3,11 @@
 Why? Why not? I learned a lot. 
 
 ## Screenshots
-![Startup Screen](screenshots/startup.png "Startup Screen")
-![Gameplay](screenshots/gameplay.png "Startup Screen")
+
+<img src="screenshots/startup.png" alt="Startup Screen" title="Startup Screen" width="300" style="margin-right: 20px;"/>
+
+<img src="screenshots/gameplay.png" alt="Gameplay" title="Gameplay" width="300"/>
+
 
 ## Resources
 * [Emulator 101](http://www.emulator101.com/)

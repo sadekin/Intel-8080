@@ -5,7 +5,7 @@ constexpr uint16_t SCREEN_HEIGHT = 256;
 constexpr uint16_t MEMORY_BASE_OFFSET = 0x2400;
 constexpr uint16_t VERTICAL_OFFSET_MULTIPLIER = 0x20;
 
-Display::Display() : window(sf::VideoMode(2.5 * SCREEN_WIDTH, 2.5 * SCREEN_HEIGHT), "Space Invaders") {
+Display::Display() : window(sf::VideoMode(1.5 * SCREEN_WIDTH, 1.5 * SCREEN_HEIGHT), "Space Invaders") {
     window.setFramerateLimit(60);
     texture.create(SCREEN_WIDTH, SCREEN_HEIGHT);
 
